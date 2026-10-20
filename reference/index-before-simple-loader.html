@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#eeede9">
+  <meta name="description" content="个人作品集，正在从一句你好开始。">
+  <title>你好 · 个人作品集</title>
+  <link rel="stylesheet" href="style.css">
+  <script defer src="assets/rive/rive.js"></script>
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">跳到正文</a>
+  <main id="main-content">
+    <header class="site-header">
+      <a href="#home" class="wordmark" aria-label="回到首页">未完待续<span>个人作品集 / 2026</span></a>
+      <button class="replay" type="button">重播开场 <span aria-hidden="true">↗</span></button>
+    </header>
+    <section class="home" id="home" aria-labelledby="home-title">
+      <div class="eyebrow"><span class="status-dot"></span> 从一个想法，开始。</div>
+      <h1 id="home-title">你好。<br><span>很高兴在这里遇见你。</span></h1>
+      <div class="home-bottom"><p>这里将记录我的项目、探索，<br>以及把想法变成现实的过程。</p><a href="#work" class="work-link">往下看看 <span aria-hidden="true">↓</span></a></div>
+      <span class="edition">第一章 / 初次见面</span>
+    </section>
+    <section class="work-section" id="work" aria-labelledby="work-title"><div class="section-label">01 / PROJECTS</div><h2 id="work-title">作品，陆续登场。</h2><p>这里留给即将加入的项目。</p><div class="work-rule"></div><span>TO BE CONTINUED</span></section>
+    <footer><span>慢慢来，把想法做好。<small class="animation-credit">开场人物：<a href="https://rive.app/marketplace/2753-5927-skins-demo/">Skins Demo · JcToon</a> / <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></small></span><button class="replay" type="button">再说一次你好 ↗</button></footer>
+  </main>
+
+  <section class="intro" aria-label="开场动画：人物拉出浅色多语言问候页，最后显示你好">
+    <div class="cover-scene" aria-hidden="true">
+      <div class="greeting-anchor"><div class="greeting" lang="en">Hello</div></div>
+      <div class="intro-meta"><span>一次小小的相遇</span><span class="language-name">ENGLISH</span></div>
+    </div>
+    <div class="pull-rope" aria-hidden="true"></div>
+    <div class="pusher" aria-hidden="true"></div>
+    <div class="intro-bottom"><span class="chapter">HELLO, WORLD.</span><button class="skip-intro" type="button">跳过开场 <span aria-hidden="true">↗</span></button></div>
+    <div class="progress-track" aria-hidden="true"><div class="progress-fill"></div></div>
+    <span class="sr-only" role="status" id="intro-status">正在播放开场动画</span>
+  </section>
+  <noscript><style>.intro{display:none}main[inert]{display:block}</style><p class="noscript-message">请启用 JavaScript 观看开场动画。正文已展示。</p></noscript>
+</body>
+</html>

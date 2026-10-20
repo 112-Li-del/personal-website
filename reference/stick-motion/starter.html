@@ -1,0 +1,457 @@
+<!doctype html>
+<html lang="en">
+<!-- Made with the Stick Motion skill v1.0.0 - MIT - stick-motion rig starter -->
+<head>
+<meta charset="utf-8">
+<title>Stick Motion — Rig Starter</title>
+<!--
+  STICK MOTION — RIG STARTER — one file, click-to-open, no build step.
+
+  What this is NOT: a stickman drawn as one big <path> with hand-picked
+  coordinates per frame. That approach is why agents draw bad stickmen —
+  every frame is a fresh coordinate guess, so limbs drift, stretch, and
+  clip through the body.
+
+  What this IS: a jointed 2D rig with fixed bone lengths.
+    - Arms/head   : forward kinematics (FK). You set an angle per joint;
+                    the chain (shoulder -> elbow -> hand) follows exactly.
+    - Legs        : inverse kinematics (IK). You set a FOOT TARGET point;
+                    the rig solves the hip/knee angles that reach it.
+                    This is what keeps feet glued to the ground instead of
+                    floating or sliding — see solveLegIK() below.
+    - Walking     : the foot targets during a walk are not hand-authored
+                    per frame. walkFootX()/walkFootY() are pure closed-form
+                    functions of time that guarantee the stance foot's
+                    world position does not move while the body walks over
+                    it (foot-lock), and the swing foot arcs forward. See
+                    references/rig-architecture.md for the derivation.
+
+  Everything is a pure function of tl.time() (GSAP timeline). No
+  Math.random(), no Date.now(), no per-frame accumulation — so ?debug=1
+  scrubbing is exact and frame export never drifts.
+
+  ============ CUSTOMIZE HERE (style brief) ============
+  Stroke color / weight   : STYLE.stroke / STYLE.strokeWidth below
+  Head fill               : STYLE.headFill
+  Proportions (bone       : BONES below (lengths in SVG units, HEAD_R = 1 "head")
+    lengths)
+  Ground line y           : GROUND_Y below
+  =======================================================
+-->
+<style>
+  html,body{margin:0;height:100%;background:#eef1f5;overflow:hidden;
+    font-family:system-ui,sans-serif}
+  #stage-wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+  svg#stage{width:min(96vw,1280px);height:auto;background:#eef1f5;display:block}
+  #ui{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);
+    display:none;align-items:center;gap:12px;padding:9px 16px;border-radius:14px;
+    background:rgba(20,22,28,.88);color:#cfd3dc;font-size:13px;z-index:10}
+  #ui.on{display:flex}
+  #ui button{background:#30343e;color:#fff;border:none;padding:7px 14px;
+    border-radius:8px;font:inherit;cursor:pointer}
+  #scrub{width:320px}
+  #clock{font-variant-numeric:tabular-nums;min-width:5ch;text-align:right}
+</style>
+</head>
+<body>
+<div id="stage-wrap">
+  <svg id="stage" viewBox="0 0 1280 720" xmlns="http://www.w3.org/2000/svg">
+    <line id="ground" x1="0" y1="640" x2="1280" y2="640" stroke="#c7cbd3" stroke-width="4"/>
+    <g id="figure" stroke-linecap="round" fill="none">
+      <line id="bone-torso"/>
+      <line id="bone-neck"/>
+      <line id="bone-armL-upper"/>
+      <line id="bone-armL-fore"/>
+      <line id="bone-armR-upper"/>
+      <line id="bone-armR-fore"/>
+      <line id="bone-legL-thigh"/>
+      <line id="bone-legL-shin"/>
+      <line id="bone-legL-foot"/>
+      <line id="bone-legR-thigh"/>
+      <line id="bone-legR-shin"/>
+      <line id="bone-legR-foot"/>
+      <circle id="head" r="28"/>
+    </g>
+    <g id="accessories" fill="none">
+      <path id="skirt" fill-opacity="0" stroke="none"/>
+      <line id="ponytail1" fill="none"/>
+      <line id="ponytail2" fill="none"/>
+    </g>
+  </svg>
+</div>
+
+<div id="ui">
+  <button id="btn-play">Pause</button><button id="btn-restart">Restart</button>
+  <input id="scrub" type="range" min="0" max="1000" value="0">
+  <span id="clock">0.00s</span>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script>
+const $ = s => document.querySelector(s);
+
+/* ================= CHARACTER VARIANTS =================
+   Named presets change stroke color and optionally layer a purely
+   DECORATIVE accessory (skirt, ponytail) on top of the same skeleton —
+   bone lengths and joint math never change between characters. Switch
+   characters by pointing STYLE at a different key below. For more than
+   one figure on stage at once (e.g. two different characters), see
+   references/anatomy.md "Color and multiple figures" and duplicate the
+   whole figure+accessories group with its own STYLE. Full guide,
+   including how to add new accessories, in references/characters.md. */
+const CHARACTERS = {
+  classic: { stroke:'#1b1e26', strokeWidth:9, headFill:'#1b1e26', accessory:'none' },
+  red:     { stroke:'#c62828', strokeWidth:9, headFill:'#c62828', accessory:'none' },
+  white:   { stroke:'#f5f6f8', strokeWidth:9, headFill:'#f5f6f8', accessory:'none' }, // pair with a dark background
+  woman:   { stroke:'#1b1e26', strokeWidth:9, headFill:'#1b1e26', accessory:'skirt+ponytail' },
+};
+const STYLE = CHARACTERS.classic; // <-- change to CHARACTERS.red / .white / .woman etc.
+const GROUND_Y = 640;
+
+/* ================= BONES (proportions) =================
+   Unit = 1 "head". Change these to restyle the figure (chibi: shrink
+   TORSO/THIGH/SHIN; heroic: lengthen them) — the rig math does not care. */
+const HEAD_R = 28;
+const BONES = {
+  NECK: HEAD_R*0.35,
+  TORSO: HEAD_R*3.1,
+  UPPER_ARM: HEAD_R*1.55,
+  FOREARM: HEAD_R*1.4,
+  THIGH: HEAD_R*1.9,
+  SHIN: HEAD_R*1.85,
+  FOOT: HEAD_R*0.85,
+};
+
+/* ================= FK / IK CORE =================
+   Angle convention (degrees, all absolute unless noted "rel"):
+     - "down"-reference bones (arms, legs): 0 = points straight down,
+       +90 = points straight toward +X (the direction the figure faces
+       when facing = +1), -90 = toward -X.
+     - "up"-reference bones (torso, neck): 0 = points straight up, same
+       sign rule otherwise.
+     - Elbow/knee bends are RELATIVE to their parent bone's absolute
+       angle (child_absolute = parent_absolute + bend). This is why
+       posing an upper arm never requires recomputing the forearm. */
+const D2R = Math.PI/180, R2D = 180/Math.PI;
+function downVec(angleDeg, len, facing){
+  const a = angleDeg*D2R;
+  return { dx: facing*len*Math.sin(a), dy: len*Math.cos(a) };
+}
+function upVec(angleDeg, len, facing){
+  const a = angleDeg*D2R;
+  return { dx: facing*len*Math.sin(a), dy: -len*Math.cos(a) };
+}
+
+/* 2-bone analytic IK. Give it a root (hip) and a target (foot); it
+   returns the absolute thigh angle and the relative knee bend that
+   place the ankle exactly on the target. kneeSign fixes which way the
+   knee bows (keep it constant — real knees only bend one way). */
+function solveLegIK(hipX, hipY, footX, footY, L1, L2, facing, kneeSign=1){
+  const dx = (footX-hipX)*facing, dy = footY-hipY;
+  let d = Math.hypot(dx,dy);
+  const maxD = L1+L2-0.01, minD = Math.abs(L1-L2)+0.5;
+  d = Math.min(Math.max(d,minD),maxD);
+  const angleToFoot = Math.atan2(dx,dy); // down-reference angle, radians
+  const cosB = (L1*L1 + d*d - L2*L2)/(2*L1*d);
+  const B = Math.acos(Math.min(1,Math.max(-1,cosB)));
+  const cosC = (L1*L1 + L2*L2 - d*d)/(2*L1*L2);
+  const C = Math.acos(Math.min(1,Math.max(-1,cosC)));
+  // B is the angle-at-hip between the hip->target line and the thigh;
+  // it must be SUBTRACTED (not added) so the knee folds toward the
+  // target side instead of away from it (verified numerically against
+  // a target the IK must reach exactly).
+  const thighAngle = (angleToFoot - kneeSign*B)*R2D;
+  const kneeBend = kneeSign*(Math.PI-C)*R2D;
+  return { thighAngle, kneeBend };
+}
+
+/* Forward-kinematics chain for one leg, from a solved (or authored)
+   thigh angle + knee bend + foot bend, returning every joint in WORLD
+   coordinates. Also used for arms (upper/fore) with the down-reference
+   convention. */
+function chain2(rootX, rootY, angle1, len1, bend2, len2, facing, ref='down'){
+  const v = ref==='down' ? downVec : upVec;
+  const p1 = v(angle1, len1, facing);
+  const joint = { x: rootX+p1.dx, y: rootY+p1.dy };
+  const angle2 = angle1 + bend2;
+  const p2 = v(angle2, len2, facing);
+  const end = { x: joint.x+p2.dx, y: joint.y+p2.dy };
+  return { joint, end, angle2 };
+}
+
+/* ================= WALK CYCLE — deterministic foot-lock =================
+   See references/rig-architecture.md for the full derivation. Summary:
+   the hip (root) is driven forward at a constant `speed` by ONE GSAP
+   tween (the single source of truth for how far the body has walked).
+   gaitFoot() only returns a BOUNDED offset relative to the hip — never
+   an accumulated absolute position — so it can never drift out of sync
+   with however the hip is actually being moved. During stance the
+   offset sweeps by exactly `speed*T*duty`, which is precisely the
+   distance the hip travels in one stance phase, so foot WORLD X stays
+   fixed (no sliding) while the body moves over it; swing eases the
+   offset back to the front contact point on an arc. Pure function of
+   time — scrub anywhere, it is always correct. */
+function gaitFoot(t, T, duty, speed, stepHeight, phaseOffset){
+  const phi = (((t/T)+phaseOffset)%1+1)%1;
+  const relAmp = speed*T*duty;          // hip travel during one stance phase
+  let relX, y;
+  if(phi < duty){
+    const u = phi/duty;                 // 0..1 across stance
+    relX = relAmp/2 - relAmp*u;
+    y = GROUND_Y;
+  } else {
+    const u = (phi-duty)/(1-duty);      // 0..1 across swing
+    const eased = u<0.5 ? 2*u*u : 1-Math.pow(-2*u+2,2)/2; // easeInOutQuad
+    relX = -relAmp/2 + relAmp*eased;
+    y = GROUND_Y - stepHeight*Math.sin(Math.PI*u);
+  }
+  return { relX, y, phi };
+}
+
+/* ================= POSE PRESETS (static, non-walking) =================
+   Legs are still posed via a FOOT TARGET (relative to hip, in world
+   units) fed through the same solveLegIK — never raw thigh/knee angles —
+   so a pose can never place a foot at an anatomically impossible
+   distance from the hip. See references/poses.md for the full library
+   and how to blend between these with GSAP. */
+/* NOTE: every field here is a flat number (never a nested object).
+   GSAP's plain-object tweening only interpolates numeric leaf
+   properties, so foot targets are stored as footLdx/footLdy/footRdx/
+   footRdy instead of footL:{dx,dy} -- keep any new pose fields flat
+   for the same reason. */
+const POSES = {
+  STAND: { torso:0, neck:0, shoulderL:-10, elbowBendL:12, shoulderR:10, elbowBendR:12,
+            footLdx:-30, footLdy:0, footRdx:30, footRdy:0, footBendL:90, footBendR:90, hipDrop:0 },
+  WAVE_UP:  { torso:2, neck:-4, shoulderL:-10, elbowBendL:12, shoulderR:-155, elbowBendR:60,
+            footLdx:-30, footLdy:0, footRdx:30, footRdy:0, footBendL:90, footBendR:90, hipDrop:0 },
+  WAVE_DOWN:{ torso:2, neck:-4, shoulderL:-10, elbowBendL:12, shoulderR:-120, elbowBendR:60,
+            footLdx:-30, footLdy:0, footRdx:30, footRdy:0, footBendL:90, footBendR:90, hipDrop:0 },
+  POINT:  { torso:4, neck:2, shoulderL:-10, elbowBendL:12, shoulderR:-88, elbowBendR:-4,
+            footLdx:-30, footLdy:0, footRdx:30, footRdy:0, footBendL:90, footBendR:90, hipDrop:0 },
+  CHEER:  { torso:0, neck:0, shoulderL:-170, elbowBendL:-10, shoulderR:170, elbowBendR:10,
+            footLdx:-40, footLdy:0, footRdx:40, footRdy:0, footBendL:90, footBendR:90, hipDrop:0 },
+  CROUCH: { torso:8, neck:6, shoulderL:35, elbowBendL:70, shoulderR:-35, elbowBendR:-70,
+            footLdx:-32, footLdy:0, footRdx:32, footRdy:0, footBendL:90, footBendR:90, hipDrop:56 },
+  JUMP_PEAK:{ torso:-4, neck:-2, shoulderL:-150, elbowBendL:20, shoulderR:150, elbowBendR:-20,
+            footLdx:-16, footLdy:-70, footRdx:16, footRdy:-70, footBendL:60, footBendR:60, hipDrop:-70 },
+};
+
+/* ================= RENDER: pose (angles/targets) -> SVG =================
+   This is the ONLY function that touches DOM attributes. It never reads
+   the clock itself — everything it needs is passed in via `pose`. That
+   is what makes the rig seek-safe and frame-export safe. */
+const el = {
+  torso: $('#bone-torso'), neck: $('#bone-neck'), head: $('#head'),
+  armLu: $('#bone-armL-upper'), armLf: $('#bone-armL-fore'),
+  armRu: $('#bone-armR-upper'), armRf: $('#bone-armR-fore'),
+  legLt: $('#bone-legL-thigh'), legLs: $('#bone-legL-shin'), legLfoot: $('#bone-legL-foot'),
+  legRt: $('#bone-legR-thigh'), legRs: $('#bone-legR-shin'), legRfoot: $('#bone-legR-foot'),
+};
+const acc = { skirt: $('#skirt'), tail1: $('#ponytail1'), tail2: $('#ponytail2') };
+Object.values(el).forEach(n=>{
+  if(n.tagName==='line'||n.tagName==='LINE'){
+    n.setAttribute('stroke', STYLE.stroke);
+    n.setAttribute('stroke-width', STYLE.strokeWidth);
+  }
+});
+el.head.setAttribute('fill', STYLE.headFill);
+acc.skirt.setAttribute('fill', STYLE.stroke);
+[acc.tail1, acc.tail2].forEach(n=>{ n.setAttribute('stroke', STYLE.stroke);
+  n.setAttribute('stroke-width', STYLE.strokeWidth*0.7); });
+const hasAccessory = (name) => STYLE.accessory && STYLE.accessory.includes(name);
+acc.skirt.setAttribute('fill-opacity', hasAccessory('skirt') ? '1' : '0');
+[acc.tail1,acc.tail2].forEach(n=>n.setAttribute('opacity', hasAccessory('ponytail') ? '1' : '0'));
+
+function setLine(node,a,b){ node.setAttribute('x1',a.x); node.setAttribute('y1',a.y);
+  node.setAttribute('x2',b.x); node.setAttribute('y2',b.y); }
+
+function render(hip, pose, facing=1){
+  // torso + head + neck (FK, up-reference)
+  const t = upVec(pose.torso, BONES.TORSO, facing);
+  const shoulder = { x: hip.x+t.dx, y: hip.y+t.dy };
+  setLine(el.torso, hip, shoulder);
+  const n = upVec(pose.torso+pose.neck, BONES.NECK, facing);
+  const headBase = { x: shoulder.x+n.dx, y: shoulder.y+n.dy };
+  setLine(el.neck, shoulder, headBase);
+  const hv = upVec(pose.torso+pose.neck, HEAD_R, facing);
+  const headCenter = { x: headBase.x+hv.dx, y: headBase.y+hv.dy };
+  el.head.setAttribute('cx', headCenter.x);
+  el.head.setAttribute('cy', headCenter.y);
+
+  // arms (FK, down-reference, attached at shoulder point)
+  const armL = chain2(shoulder.x, shoulder.y, pose.shoulderL, BONES.UPPER_ARM, pose.elbowBendL, BONES.FOREARM, facing);
+  setLine(el.armLu, shoulder, armL.joint); setLine(el.armLf, armL.joint, armL.end);
+  const armR = chain2(shoulder.x, shoulder.y, pose.shoulderR, BONES.UPPER_ARM, pose.elbowBendR, BONES.FOREARM, facing);
+  setLine(el.armRu, shoulder, armR.joint); setLine(el.armRf, armR.joint, armR.end);
+
+  // legs (IK from foot targets). Targets are authored as an offset from
+  // the *ground line* (footLdx/footLdy), not the hip, so a pose reads
+  // the same regardless of hip height (crouch, jump, etc.):
+  const groundTargetL = { x: hip.x+pose.footLdx, y: GROUND_Y+pose.footLdy };
+  const groundTargetR = { x: hip.x+pose.footRdx, y: GROUND_Y+pose.footRdy };
+  const ikL = solveLegIK(hip.x, hip.y, groundTargetL.x, groundTargetL.y, BONES.THIGH, BONES.SHIN, facing, 1);
+  const legL = chain2(hip.x, hip.y, ikL.thighAngle, BONES.THIGH, ikL.kneeBend, BONES.SHIN, facing);
+  setLine(el.legLt, hip, legL.joint); setLine(el.legLs, legL.joint, legL.end);
+  const footLv = downVec(legL.angle2+pose.footBendL, BONES.FOOT, facing);
+  setLine(el.legLfoot, legL.end, {x:legL.end.x+footLv.dx, y:legL.end.y+footLv.dy});
+
+  const ikR = solveLegIK(hip.x, hip.y, groundTargetR.x, groundTargetR.y, BONES.THIGH, BONES.SHIN, facing, 1);
+  const legR = chain2(hip.x, hip.y, ikR.thighAngle, BONES.THIGH, ikR.kneeBend, BONES.SHIN, facing);
+  setLine(el.legRt, hip, legR.joint); setLine(el.legRs, legR.joint, legR.end);
+  const footRv = downVec(legR.angle2+pose.footBendR, BONES.FOOT, facing);
+  setLine(el.legRfoot, legR.end, {x:legR.end.x+footRv.dx, y:legR.end.y+footRv.dy});
+
+  return { headBase, headCenter, shoulder, handL: armL.end, handR: armR.end, footL: legL.end, footR: legR.end };
+}
+
+/* ================= ACCESSORIES (purely decorative) =================
+   Skirt and ponytail are layered on TOP of the same skeleton — they
+   never change a bone length or a joint angle, only draw extra shapes
+   anchored to hip/head positions render() already computed. This is
+   why a "woman" character variant does not need its own pose library:
+   every existing STAND/WAVE/WALK/etc. pose still works underneath.
+   Full guide: references/characters.md. */
+function drawAccessories(hip, headCenter, footL, footR, facing, t){
+  if (hasAccessory('skirt')) {
+    const topW = HEAD_R*0.85, botW = HEAD_R*1.55, len = BONES.THIGH*0.85;
+    // Gentle sway toward wherever the feet currently are, so the skirt
+    // isn't perfectly rigid during a walk, without simulating cloth.
+    // Purely cosmetic: it reads render()'s already-computed foot
+    // positions, it never feeds back into any joint angle.
+    const sway = ((footL.x-hip.x)+(footR.x-hip.x))*0.12;
+    const top = hip.y, bot = hip.y+len;
+    const d = `M ${hip.x-topW} ${top} L ${hip.x+topW} ${top} `+
+              `L ${hip.x+botW+sway} ${bot} L ${hip.x-botW+sway} ${bot} Z`;
+    acc.skirt.setAttribute('d', d);
+  }
+  if (hasAccessory('ponytail')) {
+    // Anchored behind the head (opposite `facing`), with a slow sway
+    // driven by tl.time() — deterministic, not accumulated state, so
+    // it stays seek-safe like everything else in this rig.
+    const backX = headCenter.x - facing*HEAD_R*0.85;
+    const topY = headCenter.y - HEAD_R*0.3;
+    const sway = Math.sin(2*Math.PI*t/1.6) * 10;
+    const a1 = { x: backX - facing*HEAD_R*0.25 + sway*0.4, y: topY + HEAD_R*0.95 };
+    const a2 = { x: backX - facing*HEAD_R*0.15 + sway,     y: topY + HEAD_R*1.75 };
+    acc.tail1.setAttribute('x1', backX); acc.tail1.setAttribute('y1', topY);
+    acc.tail1.setAttribute('x2', a1.x);  acc.tail1.setAttribute('y2', a1.y);
+    acc.tail2.setAttribute('x1', a1.x);  acc.tail2.setAttribute('y1', a1.y);
+    acc.tail2.setAttribute('x2', a2.x);  acc.tail2.setAttribute('y2', a2.y);
+  }
+}
+
+/* Walking render: same `render()`, but the foot targets and hip bounce
+   come from the analytic gait function instead of a static pose.
+   IMPORTANT: `speed` here MUST equal the px/sec at which hipX is
+   actually being advanced by the caller's GSAP tween (see WALK.speed
+   and the demo timeline below) — that is what keeps the feet locked
+   to the ground instead of sliding. There is deliberately no
+   accumulated "world position" computed inside this function; hipX is
+   the only source of truth for how far the body has walked. */
+const WALK = { T:0.72, duty:0.62, speed:200, stepHeight:26, hipBaseY: GROUND_Y-(BONES.THIGH+BONES.SHIN)*0.92, bounce:8 };
+function renderWalk(hipX, tWalk, facing, armSwing=34){
+  const fR = gaitFoot(tWalk, WALK.T, WALK.duty, WALK.speed, WALK.stepHeight, 0);
+  const fL = gaitFoot(tWalk, WALK.T, WALK.duty, WALK.speed, WALK.stepHeight, 0.5);
+  const hip = { x: hipX, y: WALK.hipBaseY - WALK.bounce*Math.abs(Math.sin(Math.PI*2*(tWalk/WALK.T))) };
+  const pose = {
+    torso: 3, neck: -2,
+    shoulderR: armSwing*Math.sin(2*Math.PI*(tWalk/WALK.T)), elbowBendR: 14,
+    shoulderL: -armSwing*Math.sin(2*Math.PI*(tWalk/WALK.T)), elbowBendL: 14,
+    footRdx: fR.relX, footRdy: fR.y-GROUND_Y,
+    footLdx: fL.relX, footLdy: fL.y-GROUND_Y,
+    footBendR: fR.y<GROUND_Y-1 ? 60 : 90,
+    footBendL: fL.y<GROUND_Y-1 ? 60 : 90,
+  };
+  return render(hip, pose, facing);
+}
+
+/* ================= DEMO TIMELINE =================
+   0.0–1.6s  stand + wave
+   1.6–2.3s  crouch (anticipation)
+   2.3–6.3s  walk across the stage
+   6.3–7.1s  jump (crouch already applied at 1.6; this is the launch)
+   7.1–8.4s  land + cheer
+   Everything below writes only into `S` (a plain state object); the
+   single render() calls in the rAF loop are what actually touch the DOM,
+   driven purely by tl.time(). */
+const DURATION = 9.2;
+const tl = gsap.timeline({ paused:true });
+const S = { mode:'pose', pose:{...POSES.STAND}, hipX:230, hipYOffset:0, walkStart:0, facing:1 };
+
+function poseTween(at, dur, target, ease='sine.inOut'){
+  tl.to(S.pose, {...target, duration:dur, ease}, at);
+}
+
+poseTween(0.15, 0.35, POSES.WAVE_UP);
+poseTween(0.55, 0.3, POSES.WAVE_DOWN);
+poseTween(0.9, 0.3, POSES.WAVE_UP);
+poseTween(1.2, 0.3, POSES.WAVE_DOWN);
+poseTween(1.6, 0.35, POSES.CROUCH);
+
+// Walk distance/duration are DERIVED from WALK.speed, not authored
+// independently -- this is what guarantees the hip tween below moves
+// at exactly the speed gaitFoot() assumes (see renderWalk() comment).
+const WALK_START_X = 230, WALK_END_X = 1010;
+const WALK_DUR = (WALK_END_X-WALK_START_X)/WALK.speed;
+tl.call(()=>{ S.mode='walk'; S.walkStart=tl.time(); }, null, 2.0);
+tl.to(S, { hipX: WALK_END_X, duration: WALK_DUR, ease:'none' }, 2.0);
+/* IMPORTANT: never reassign S.pose to a *new* object mid-timeline.
+   Every poseTween() below captured a reference to the ORIGINAL S.pose
+   object when the timeline was built; replacing that reference (e.g.
+   `S.pose = {...POSES.CROUCH}`) would silently detach all later tweens,
+   which then keep animating an orphaned object nobody reads. Mutate the
+   existing object in place with tl.set() instead. */
+const WALK_END_T = 2.0 + WALK_DUR; // 5.9s
+tl.call(()=>{ S.mode='pose'; }, null, WALK_END_T);
+tl.set(S.pose, {...POSES.CROUCH}, WALK_END_T);
+
+poseTween(WALK_END_T+0.15, 0.28, POSES.JUMP_PEAK, 'power2.out');
+poseTween(WALK_END_T+0.6, 0.35, POSES.CROUCH, 'power2.in');
+poseTween(WALK_END_T+1.05, 0.4, POSES.STAND);
+poseTween(WALK_END_T+1.6, 0.5, POSES.CHEER, 'back.out(1.6)');
+poseTween(WALK_END_T+2.4, 0.5, POSES.STAND);
+tl.to({}, { duration: 0.01 }, DURATION);
+
+function frame(t){
+  let res, hip;
+  if(S.mode==='walk'){
+    hip = { x:S.hipX, y: WALK.hipBaseY - WALK.bounce*Math.abs(Math.sin(Math.PI*2*((t-S.walkStart)/WALK.T))) };
+    res = renderWalk(S.hipX, t-S.walkStart, S.facing);
+  } else {
+    const hipDrop = S.pose.hipDrop||0;
+    hip = { x:S.hipX, y: WALK.hipBaseY + hipDrop };
+    res = render(hip, S.pose, S.facing);
+  }
+  drawAccessories(hip, res.headCenter, res.footL, res.footR, S.facing, t);
+}
+
+/* ================= GLUE (scrub UI, loop, resize) ================= */
+const clock=$('#clock'), scrub=$('#scrub'), btn=$('#btn-play');
+let scrubbing=false;
+(function tick(){
+  const t = tl.time(); frame(t);
+  clock.textContent = t.toFixed(2)+'s';
+  if(!scrubbing) scrub.value = String(t/DURATION*1000);
+  requestAnimationFrame(tick);
+})();
+const toggle=()=>{ if(tl.paused()||tl.progress()>=1){ if(tl.progress()>=1) tl.progress(0);
+  tl.play(); btn.textContent='Pause'; } else { tl.pause(); btn.textContent='Play'; } };
+btn.onclick=toggle;
+$('#btn-restart').onclick=()=>{ tl.pause(0); tl.play(); btn.textContent='Pause'; };
+scrub.addEventListener('pointerdown',()=>{scrubbing=true;tl.pause();btn.textContent='Play';});
+addEventListener('pointerup',()=>scrubbing=false);
+scrub.addEventListener('input',()=>{ tl.pause(); tl.time(scrub.value/1000*DURATION); });
+addEventListener('keydown', e=>{ if(e.code==='Space'){e.preventDefault();toggle();}
+  if(/^[rR]$/.test(e.key)){tl.pause(0);tl.play();}
+  if(/^[hH]$/.test(e.key)) $('#ui').classList.toggle('on'); });
+const Q = new URLSearchParams(location.search);
+if(Q.has('debug')) $('#ui').classList.add('on');
+tl.eventCallback('onComplete', ()=>{ tl.play(0); });
+if(!Q.has('clean')) tl.play(0);
+
+/* exposed for scripts/snap.mjs and manual console poking */
+window.STICK = { tl, DURATION, render, renderWalk, solveLegIK, gaitFoot, POSES, GROUND_Y,
+  seek(t){ tl.pause(); tl.time(t,false); frame(t); } };
+</script>
+</body>
+</html>

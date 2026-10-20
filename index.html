@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0b0c0f">
+  <meta name="description" content="李咏欣的个人作品集，专注大模型应用、RAG 与 Agent 工具链开发。">
+  <title>李咏欣 · 个人作品集</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="app.js"></script>
+  <script type="module" src="tech-text.js"></script>
+  <script type="module" src="floating-symbols.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">跳到正文</a>
+  <main id="main-content">
+    <header class="site-header">
+      <button class="replay" type="button">重播开场 <span aria-hidden="true">↗</span></button>
+    </header>
+    <section class="home" id="home" aria-labelledby="home-title">
+      <div class="home-stage">
+      <div class="floating-symbols" aria-hidden="true"></div>
+      <div class="hero-copy">
+        <div class="eyebrow">HOME</div>
+        <h1 id="home-title" lang="en"><span class="hero-line"><span class="hero-line-label">Hi, I’m Yongxin, a</span></span><span class="hero-line"><span class="hero-line-label"><em class="gradient-text" data-text="creative">creative</em> developer</span></span></h1>
+        <p class="hero-description" lang="en">I bring value to web development projects by merging technical expertise with creativity and aesthetics.</p>
+      </div>
+      </div>
+    </section>
+    <section class="work-section" id="work" aria-labelledby="work-title"><div class="section-label">01 / PROJECTS</div><h2 id="work-title">作品，陆续登场。</h2><p>这里留给即将加入的项目。</p><div class="work-rule"></div><span>TO BE CONTINUED</span></section>
+    <footer><span>慢慢来，把想法做好。</span><button class="replay" type="button">再说一次你好 ↗</button></footer>
+  </main>
+
+  <section class="intro" aria-label="开场动画：不同语言的你好依次闪过">
+    <canvas class="cursor-grid-canvas" aria-hidden="true"></canvas>
+    <div class="greeting-anchor" aria-hidden="true"><div class="greeting"><span class="greeting-text" lang="en">Hello</span></div></div>
+    <div class="loading-progress" role="progressbar" aria-label="开场动画进度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+      <div class="loading-progress-meta" aria-hidden="true"><span class="loading-label">LOADING</span><span class="loading-percentage"><span class="loading-count">0</span><span class="loading-unit">%</span></span></div>
+      <div class="loading-track" aria-hidden="true"><div class="loading-fill"></div></div>
+    </div>
+    <button class="skip-intro" type="button">跳过开场 <span aria-hidden="true">↗</span></button>
+    <span class="sr-only" role="status" id="intro-status">正在播放开场动画</span>
+  </section>
+  <noscript><style>.intro{display:none}main[inert]{display:block}</style><p class="noscript-message">请启用 JavaScript 观看开场动画。正文已展示。</p></noscript>
+</body>
+</html>

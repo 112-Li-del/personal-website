@@ -1,0 +1,84 @@
+:root{--paper:#0b0c0f;--ink:#f4f5f7;--muted:#9397a1;--accent:#528bff;--curtain:#151614;--spacing:clamp(24px,5vw,88px);font-family:"Helvetica Neue",Arial,"Microsoft YaHei",sans-serif;color:var(--ink);background:var(--paper);font-synthesis:none;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0}body.intro-playing{overflow:hidden}button,a{-webkit-tap-highlight-color:transparent;touch-action:manipulation}button{font:inherit;color:inherit;cursor:pointer}a{color:inherit;text-decoration:none}button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:6px}button{border:0;background:none;padding:12px 0;min-height:44px}button:active{transform:scale(.97)}.sr-only,.skip-link:not(:focus){position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}.skip-link:focus{position:fixed;z-index:100;padding:16px;background:var(--paper)}
+/* Homepage: centered introduction, quiet black surface, blue emphasis. */
+.site-header{position:absolute;top:0;left:0;right:0;z-index:2;display:flex;justify-content:flex-end;padding:24px var(--spacing)}
+.replay{font-size:11px;color:var(--muted)}.replay span{margin-left:18px}
+.home{min-height:100svh;padding:120px var(--spacing);display:grid;place-items:center;text-align:center}
+.hero-copy{width:100%;max-width:1240px;margin-top:-12px}
+.eyebrow{font-size:11px;line-height:1.5;letter-spacing:.12em;color:var(--muted);margin-bottom:30px}
+h1{margin:0;font-size:clamp(40px,7.2vw,112px);font-weight:400;line-height:1.06;letter-spacing:-.055em}
+.hero-line{display:block}h1 em{font-style:normal;color:var(--accent)}
+.hero-description{max-width:540px;margin:32px auto 0;color:var(--muted);font-family:"Courier New",monospace;font-size:clamp(13px,1.15vw,16px);font-weight:400;line-height:1.55;letter-spacing:-.035em;text-wrap:balance}
+.hero-description>span{display:inline-block;margin-top:2px}
+.work-section{padding:100px var(--spacing) 120px;max-width:1440px;margin:auto}.section-label{font-size:11px;letter-spacing:.08em;color:var(--accent)}.work-section h2{font-size:clamp(32px,5vw,72px);font-weight:400;letter-spacing:-.05em;margin:55px 0 16px}.work-section p{font-size:14px;color:var(--muted)}.work-rule{height:1px;background:#282b33;margin:55px 0 16px}.work-section>span{font-size:10px;letter-spacing:.1em;color:var(--muted)}
+footer{padding:20px var(--spacing);display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--muted)}
+
+/* Multilingual loader inspired by Dennis Snellenberg's centered greeting and curved upward exit. */
+.intro{position:fixed;inset:0;z-index:20;background:#141517;color:#fff;isolation:isolate;overflow:visible;transform:translate3d(0,0,0)}
+.intro[hidden]{display:none}
+.cursor-grid-canvas{position:absolute;inset:0;display:block;width:100%;height:100%;z-index:0;pointer-events:none}
+.intro .greeting-anchor,.intro .loading-progress,.intro .skip-intro{z-index:1}
+.intro::after{content:'';position:absolute;left:-5%;top:calc(100% - 1px);width:110%;height:min(180px,20vh);background:#141517;border-radius:0 0 50% 50%;transform-origin:center top;pointer-events:none}
+.greeting-anchor{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)}
+.greeting{display:flex;align-items:center;gap:.36em;direction:ltr;white-space:nowrap;font-family:"Helvetica Neue",Arial,"Microsoft YaHei",sans-serif;font-weight:400;font-size:clamp(32px,4vw,64px);line-height:1.3;letter-spacing:-.035em}
+.greeting::before{content:'';display:block;flex:none;width:.14em;height:.14em;border-radius:50%;background:currentColor}
+.greeting-text{unicode-bidi:isolate}
+.loading-progress{position:absolute;left:var(--spacing);bottom:38px;width:clamp(160px,24vw,300px)}
+.loading-progress-meta{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:15px;gap:24px}
+.loading-label{color:#929294;font-size:9px;letter-spacing:.16em}
+.loading-percentage{display:inline-flex;align-items:baseline;gap:4px;font-size:clamp(28px,3vw,40px);font-weight:400;line-height:1;letter-spacing:-.045em;font-variant-numeric:tabular-nums}
+.loading-count{min-width:3ch;text-align:right}.loading-unit{font-size:11px;color:#a6a6a9;letter-spacing:0}
+.loading-track{height:1px;background:#ffffff26;overflow:hidden}.loading-fill{height:100%;background:#fff;transform:scaleX(0);transform-origin:left center;will-change:transform}
+@media(max-width:600px){.loading-progress{bottom:30px}.loading-progress-meta{margin-bottom:12px}}
+.skip-intro{position:absolute;right:var(--spacing);bottom:26px;color:#999;font-size:11px}.skip-intro span{margin-left:18px}
+.intro.leaving{transform:translate3d(0,calc(-100% - 180px),0);transition:transform .85s cubic-bezier(.76,0,.24,1);pointer-events:none}
+.intro.leaving::after{transform:scaleY(.12);transition:transform .85s cubic-bezier(.76,0,.24,1)}
+main{opacity:1;transform:translateY(0);transition:opacity .65s ease,transform .85s cubic-bezier(.16,1,.3,1)}
+body.intro-playing main{opacity:0;transform:translateY(24px);transition:none}
+@media(hover:hover){.replay:hover,.work-link:hover{color:var(--accent)}.skip-intro:hover{color:#fff}}
+@media(max-width:600px){.site-header{padding-top:18px}.home{padding:100px 22px}.hero-copy{margin-top:-8px}h1{font-size:clamp(30px,8.4vw,50px);line-height:1.12;letter-spacing:-.055em}.eyebrow{font-size:10px;margin-bottom:24px}.hero-description{font-size:12px;max-width:320px;margin-top:24px;line-height:1.65}.skip-intro{bottom:18px}.work-section{padding-top:70px;padding-bottom:90px}footer{gap:20px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}main,.intro.leaving,.intro.leaving::after{transition:none}}
+
+/* The readable title remains in the DOM beneath the interactive canvas. */
+.hero-line{position:relative}
+.hero-line.tech-ready>.hero-line-label{opacity:0}
+.tech-text{pointer-events:none;position:absolute;inset:-44px -40px;display:block;touch-action:pan-y;user-select:none;font:inherit;letter-spacing:inherit}
+.tech-text-canvas{display:block;width:100%;height:100%}
+.hero-line:first-child{z-index:1}
+@media(max-width:600px){.tech-text{inset:-28px -15px}}
+
+/* Four extruded glyphs float around the introduction, then leave along scroll. */
+.home{position:relative;display:block;height:180svh;padding:0;min-height:0}
+.home-stage{position:sticky;top:0;width:100%;display:grid;place-items:center;height:100svh;padding:100px var(--spacing);overflow:clip;isolation:isolate}
+.hero-copy{position:relative;z-index:2;will-change:opacity,transform}
+.floating-symbols{position:absolute;inset:0;z-index:1;pointer-events:none;perspective:1100px;perspective-origin:50% 50%}
+.floating-symbol{position:absolute;left:var(--symbol-x);top:var(--symbol-y);font-family:Arial,sans-serif;font-weight:900;line-height:.86;will-change:transform}
+.depth-text{display:block;perspective:900px;perspective-origin:50% 48%}
+.depth-text__stage{position:relative;display:inline-grid;place-items:center;transform-style:preserve-3d;transform-origin:50% 50%;will-change:transform}
+.depth-text__layer,.depth-text__face{grid-area:1/1;display:block;font-size:var(--symbol-size);line-height:.86;letter-spacing:-.065em;white-space:nowrap;user-select:none;transform-style:preserve-3d;backface-visibility:hidden}
+.depth-text__layer{position:absolute;inset:0;pointer-events:none}
+.depth-text__face{position:relative;color:var(--symbol-face);transform:translateZ(.6px);text-shadow:0 .02em .04em #0005}
+.depth-text__back{text-shadow:0 .18em .32em #0006}
+@media(max-width:600px){.home{height:170svh;padding:0}.home-stage{padding:100px 22px}.floating-symbol{font-size:inherit}}
+@media(prefers-reduced-motion:reduce){.hero-copy,.floating-symbol,.depth-text__stage{will-change:auto}}
+
+/* Longer pinned timeline gives the scroll-driven sequence weight. */
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+.lenis.lenis-stopped{overflow:clip}
+.home{height:260svh}
+.copy-word{display:inline-block;will-change:opacity}
+.depth-text__layer,.depth-text__face{backface-visibility:visible}
+@media(max-width:600px){.home{height:230svh}}
+@media(prefers-reduced-motion:reduce){.home{height:170svh}.copy-word{will-change:auto}}
+
+/* GradientText fallback for reduced motion / unavailable canvas. */
+.gradient-text{filter:drop-shadow(0 0 .14em #3b82f666);position:relative;color:#3b82f6;background-image:radial-gradient(ellipse at 30% 45%,#3b82f6,transparent 75%),radial-gradient(ellipse at 80% 70%,#ffffff,transparent 80%),linear-gradient(90deg,#3b82f6,#162e58,#ffffff);background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+
+
+/* SplitText rise + lift; inner ink owns scroll fading and the flowing gradient. */
+.split-char{display:inline-block;will-change:transform,opacity}
+.split-ink{display:inline-block;opacity:var(--scroll-alpha,1)}
+.split-ready .gradient-text{background:none;filter:none}
+.split-ready .gradient-text .split-ink{background-image:var(--gt-gradient,linear-gradient(90deg,#3b82f6,#162e58,#ffffff));background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 .14em #3b82f666)}
+@media(prefers-reduced-motion:reduce){.split-char{will-change:auto}}
