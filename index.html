@@ -6,19 +6,45 @@
   <meta name="theme-color" content="#0b0c0f">
   <meta name="description" content="李咏欣的个人作品集，专注大模型应用、RAG 与 Agent 工具链开发。">
   <title>李咏欣 · 个人作品集</title>
-  <link rel="stylesheet" href="style.css">
-  <script type="module" src="app.js"></script>
-  <script type="module" src="tech-text.js"></script>
-  <script type="module" src="floating-symbols.js"></script>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/navigation.css">
+  <script type="module" src="/navigation.js"></script>
+  <script type="module" src="/app.js"></script>
+  <script type="module" src="/tech-text.js"></script>
+  <script type="module" src="/floating-symbols.js"></script>
+  <script type="module" src="/letter-glitch.js"></script>
 </head>
 <body>
   <a class="skip-link" href="#main-content">跳到正文</a>
-  <main id="main-content">
-    <header class="site-header">
-      <button class="replay" type="button">重播开场 <span aria-hidden="true">↗</span></button>
+  <div class="site-chrome staggered-menu-wrapper" data-open="false">
+    <div class="menu-shade" aria-hidden="true"></div>
+    <div class="sm-prelayers" aria-hidden="true"><div class="sm-prelayer"></div><div class="sm-prelayer"></div></div>
+    <header class="staggered-menu-header">
+      <a class="site-brand" href="/" data-route aria-label="李咏欣，回到首页">© Yongxin Li</a>
+      <button class="sm-toggle" type="button" aria-label="打开菜单" aria-expanded="false" aria-controls="staggered-menu-panel">
+        <span class="sm-toggle-textWrap" aria-hidden="true"><span class="sm-toggle-textInner"><span>Menu</span><span>Close</span></span></span>
+        <span class="sm-icon" aria-hidden="true"><span class="sm-icon-line"></span><span class="sm-icon-line sm-icon-line-v"></span></span>
+      </button>
     </header>
+    <aside class="staggered-menu-panel" id="staggered-menu-panel" aria-label="主菜单" aria-hidden="true" inert>
+      <div class="sm-panel-inner">
+        <p class="sm-panel-caption">NAVIGATION</p>
+        <nav aria-label="主页面"><ul class="sm-panel-list">
+          <li><a href="/" data-route class="sm-panel-item" data-index="01"><span class="sm-panel-itemLabel">Home</span></a></li>
+          <li><a href="/about" data-route class="sm-panel-item" data-index="02"><span class="sm-panel-itemLabel">About</span></a></li>
+          <li><a href="/work" data-route class="sm-panel-item" data-index="03"><span class="sm-panel-itemLabel">Work</span></a></li>
+          <li><a href="/achievement" data-route class="sm-panel-item" data-index="04"><span class="sm-panel-itemLabel">Achievement</span></a></li>
+          <li><a href="/contact" data-route class="sm-panel-item" data-index="05"><span class="sm-panel-itemLabel">Contact</span></a></li>
+        </ul></nav>
+        <div class="sm-socials"><span class="sm-socials-title">ELSEWHERE</span><a class="sm-socials-link" href="https://github.com/112-Li-del" target="_blank" rel="noopener noreferrer">GitHub ↗</a></div>
+      </div>
+    </aside>
+  </div>
+  <main id="main-content">
+    <div class="route-page" data-page="home">
     <section class="home" id="home" aria-labelledby="home-title">
       <div class="home-stage">
+      <div class="home-glitch" aria-hidden="true"><canvas class="home-glitch-canvas"></canvas></div>
       <div class="floating-symbols" aria-hidden="true"></div>
       <div class="hero-copy">
         <div class="eyebrow">HOME</div>
@@ -27,8 +53,21 @@
       </div>
       </div>
     </section>
-    <section class="work-section" id="work" aria-labelledby="work-title"><div class="section-label">01 / PROJECTS</div><h2 id="work-title">作品，陆续登场。</h2><p>这里留给即将加入的项目。</p><div class="work-rule"></div><span>TO BE CONTINUED</span></section>
-    <footer><span>慢慢来，把想法做好。</span><button class="replay" type="button">再说一次你好 ↗</button></footer>
+    <section class="home-next"><span class="section-label">KEEP EXPLORING</span><a href="/work" data-route>See what I’m building <span aria-hidden="true">↗</span></a></section>
+    </div>
+    <section class="route-page interior-page" data-page="about" hidden aria-labelledby="about-title">
+      <div class="page-copy"><p class="page-kicker">01 / ABOUT</p><h1 id="about-title" tabindex="-1">A little<br><em>about me.</em></h1><p class="page-description">我是李咏欣，南京财经大学计算机科学与技术本科在读。<br>专注大模型应用、RAG 与 Agent 工具链，把想法做成可以使用的产品。</p><a href="/work" data-route class="page-link">Explore my work <span aria-hidden="true">↗</span></a></div>
+    </section>
+    <section class="route-page interior-page" data-page="work" hidden aria-labelledby="work-title">
+      <div class="page-copy"><p class="page-kicker">02 / WORK</p><h1 id="work-title" tabindex="-1">Ideas,<br><em>put to work.</em></h1><p class="page-description">从校园智能问答到自动化演示视频，记录把想法落地的过程。</p><div class="project-index"><span>「财问」校园智能问答系统</span><a href="https://github.com/112-Li-del/auto-demo" target="_blank" rel="noopener noreferrer">auto-demo <span aria-hidden="true">↗</span></a></div></div>
+    </section>
+    <section class="route-page interior-page" data-page="achievement" hidden aria-labelledby="achievement-title">
+      <div class="page-copy"><p class="page-kicker">03 / ACHIEVEMENT</p><h1 id="achievement-title" tabindex="-1">Learning.<br><em>Making progress.</em></h1><p class="page-description">IEEE CCAI 2026 会议论文第四作者，参与时序异常检测研究。<br>在学习、研究与实践中，积累每一步。</p><a href="/about" data-route class="page-link">More about me <span aria-hidden="true">↗</span></a></div>
+    </section>
+    <section class="route-page interior-page" data-page="contact" hidden aria-labelledby="contact-title">
+      <div class="page-copy"><p class="page-kicker">04 / CONTACT</p><h1 id="contact-title" tabindex="-1">Let’s make<br><em>something.</em></h1><p class="page-description">有想法、项目，或者只是想打个招呼，欢迎联系。</p><div class="contact-links"><a href="mailto:2386079596@qq.com">2386079596@qq.com ↗</a><a href="https://github.com/112-Li-del" target="_blank" rel="noopener noreferrer">GitHub ↗</a></div></div>
+    </section>
+    <footer class="site-footer"><a href="/" data-route>© Yongxin Li · 2026</a><a href="/contact" data-route>Let’s get in touch ↗</a></footer>
   </main>
 
   <section class="intro" aria-label="开场动画：不同语言的你好依次闪过">
@@ -38,7 +77,6 @@
       <div class="loading-progress-meta" aria-hidden="true"><span class="loading-label">LOADING</span><span class="loading-percentage"><span class="loading-count">0</span><span class="loading-unit">%</span></span></div>
       <div class="loading-track" aria-hidden="true"><div class="loading-fill"></div></div>
     </div>
-    <button class="skip-intro" type="button">跳过开场 <span aria-hidden="true">↗</span></button>
     <span class="sr-only" role="status" id="intro-status">正在播放开场动画</span>
   </section>
   <noscript><style>.intro{display:none}main[inert]{display:block}</style><p class="noscript-message">请启用 JavaScript 观看开场动画。正文已展示。</p></noscript>

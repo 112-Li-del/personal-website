@@ -41,7 +41,7 @@ const pointer={x:0,y:0},current={x:0,y:0};
 const clamp=value=>Math.max(0,Math.min(1,value));
 const smooth=value=>{const t=clamp(value);return t*t*(3-2*t);};
 function resize(){
-  width=scene.clientWidth;height=scene.clientHeight;
+  width=Math.max(1,scene.clientWidth);height=Math.max(1,scene.clientHeight);
   top=home.getBoundingClientRect().top+scrollY;
   travel=Math.max(1,home.offsetHeight-height);
   const mobile=width<=600;
@@ -56,18 +56,21 @@ function resize(){
 function draw(now){
   raf=0;
   const dt=last?Math.min((now-last)/1000,.05):0;last=now;
-  const paused=document.hidden||document.body.classList.contains('intro-playing');
+  const paused=document.hidden||document.body.classList.contains('intro-playing')||document.body.classList.contains('menu-open');
   if(paused)return;
   if(!reduced.matches)elapsed+=dt;
   const p=clamp((scrollY-top)/travel);
-  home.dataset.progress=String(p);
-  const alpha=1-smooth((p-.06)/.76);
+  // Extend the flight without slowing the established text fade timeline.
+  const textTravel=reduced.matches?travel:height*(width<=600?1.3:1.6);
+  const textProgress=clamp((scrollY-top)/textTravel);
+  home.dataset.progress=String(textProgress);
+  const alpha=1-smooth((textProgress-.06)/.76);
   copy.style.opacity=reduced.matches?String(alpha):'1';
-  document.querySelector('.eyebrow').style.opacity=String(1-smooth(p/.32));
+  document.querySelector('.eyebrow').style.opacity=String(1-smooth(textProgress/.32));
   copy.querySelectorAll('.copy-word').forEach((word,i,all)=>{
-    word.style.opacity=String(1-smooth((p-(.07+i/Math.max(1,all.length-1)*.55))/.25));
+    word.style.opacity=String(1-smooth((textProgress-(.07+i/Math.max(1,all.length-1)*.55))/.25));
   });
-  copy.style.transform=`translate3d(0,${reduced.matches?0:-32*p}px,0)`;
+  copy.style.transform=`translate3d(0,${reduced.matches?0:-32*textProgress}px,0)`;
   copy.style.pointerEvents=alpha<.03?'none':'';
   current.x+=(pointer.x-current.x)*.06;current.y+=(pointer.y-current.y)*.06;
   for(const s of symbols){
@@ -119,7 +122,7 @@ function configureScroll(){
   syncIntro();
 }
 function syncIntro(){
-  if(document.body.classList.contains('intro-playing'))lenis?.stop();
+  if(document.body.classList.contains('intro-playing')||document.body.classList.contains('menu-open'))lenis?.stop();
   else lenis?.start();
   wake();
 }
@@ -134,3 +137,5 @@ descriptionText.split(/(\s+)/).forEach(word=>{
 new MutationObserver(syncIntro).observe(document.body,{attributes:true,attributeFilter:['class']});
 reduced.addEventListener('change',configureScroll);
 configureScroll();
+
+addEventListener('portfolio:navigate',()=>{lenis?.resize();lenis?.scrollTo(0,{immediate:true,force:true});resize();});

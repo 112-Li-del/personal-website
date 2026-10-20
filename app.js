@@ -1,5 +1,6 @@
 import {createCursorGrid} from './cursor-grid.js';
 const intro=document.querySelector('.intro'),main=document.querySelector('main');
+const chrome=document.querySelector('.site-chrome');
 const cursorGrid=createCursorGrid(intro,document.querySelector('.cursor-grid-canvas'));
 const greeting=document.querySelector('.greeting-text'),status=document.querySelector('#intro-status');
 const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)');
@@ -37,9 +38,9 @@ function finish({skipped=false}={}){
   cursorGrid.stop();
   render(TOTAL);
   intro.classList.add('leaving');intro.dataset.phase='leaving';
-  document.body.classList.remove('intro-playing');main.inert=false;
+  document.body.classList.remove('intro-playing');main.inert=false;if(chrome)chrome.inert=false;
   status.textContent='你好，欢迎来到我的作品集';
-  if(skipped||trigger)(trigger||document.querySelector('main .replay')).focus({preventScroll:true});
+  if(skipped||trigger)(trigger||document.querySelector('.sm-toggle'))?.focus({preventScroll:true});
   const hide=()=>{intro.hidden=true;intro.dataset.phase='complete';};
   if(reducedMotion.matches)hide();else hideTimer=setTimeout(hide,850);
 }
@@ -51,7 +52,7 @@ function play(event){
   cancelAnimationFrame(frame);clearTimeout(hideTimer);trigger=event?.currentTarget||null;
   window.scrollTo({top:0,behavior:'instant'});
   intro.hidden=false;intro.classList.remove('leaving');intro.dataset.phase='greetings';
-  document.body.classList.add('intro-playing');main.inert=true;active=true;
+  document.body.classList.add('intro-playing');main.inert=true;if(chrome)chrome.inert=true;active=true;
   status.textContent='正在播放多语言问候开场';render(0);
   if(reducedMotion.matches){render(TOTAL);finish();return;}
   cursorGrid.start();
@@ -59,8 +60,6 @@ function play(event){
   void intro.offsetWidth;
   started=performance.now();frame=requestAnimationFrame(tick);
 }
-document.querySelectorAll('main .replay').forEach(button=>button.addEventListener('click',play));
-document.querySelector('.skip-intro').addEventListener('click',()=>finish({skipped:true}));
 addEventListener('keydown',event=>{if(event.key==='Escape'&&active)finish({skipped:true});});
 reducedMotion.addEventListener('change',()=>{if(active&&reducedMotion.matches)finish();});
 play();

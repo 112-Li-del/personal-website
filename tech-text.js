@@ -684,7 +684,7 @@ function createTechText(container, canvas, text, accentLetters, sequenceStart, s
 
     const tick = now => {
       raf = 0;
-      if (document.hidden || document.body.classList.contains('intro-playing')) return;
+      if (document.hidden || document.body.classList.contains('intro-playing') || document.body.classList.contains('menu-open')) return;
       const s = settingsRef.current;
       if (!s) return;
       const dt = Math.min(0.05, Math.max(0.001, (now - last) / 1000));
@@ -896,6 +896,8 @@ function createTechText(container, canvas, text, accentLetters, sequenceStart, s
       wake();
     };
     const scrollWake=()=>{if(visible)wake();};
+    const routeWake=()=>{if(!homeScene.closest('[hidden]')){entranceClock=0;entering=true;clock=0;frame.alpha=0;pointer.inside=false;wake();}};
+    window.addEventListener('portfolio:navigate',routeWake);
     window.addEventListener('scroll',scrollWake,{passive:true});
 
     const locate = e => {
@@ -989,6 +991,7 @@ function createTechText(container, canvas, text, accentLetters, sequenceStart, s
     return () => {
       document.removeEventListener('visibilitychange', wake);
       window.removeEventListener('scroll',scrollWake);
+      window.removeEventListener('portfolio:navigate',routeWake);
       container.parentElement.classList.remove('tech-ready');
       alive = false;
       cancelAnimationFrame(raf);

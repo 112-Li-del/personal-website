@@ -38,4 +38,5 @@ app.run('finish({skipped:true})');app.run('play()');app.flush();assert.equal(app
 app.run('finish({skipped:true})');app.flush();assert.equal(app.node('main').inert,false);
 const reduced=harness(true);assert.equal(reduced.node('.intro').hidden,true);assert.equal(reduced.node('main').inert,false);
 const html=fs.readFileSync('index.html','utf8');assert.ok(!html.includes('rive.js')&&!html.includes('pull-rope')&&!html.includes('class="pusher"'),'Loader has no character or animation-runtime dependency');
+assert.ok(!html.includes('class="skip-intro"')&&!html.includes('class="replay"'),'Removed skip and replay controls');
 console.log('PASS: all 12 languages, timing, final Chinese hold, upward exit state, skip, replay cancellation, reduced motion and no Rive dependency.');

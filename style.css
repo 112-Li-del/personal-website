@@ -66,10 +66,10 @@ body.intro-playing main{opacity:0;transform:translateY(24px);transition:none}
 html.lenis,html.lenis body{height:auto}
 .lenis.lenis-smooth{scroll-behavior:auto!important}
 .lenis.lenis-stopped{overflow:clip}
-.home{height:260svh}
+.home{height:320svh}
 .copy-word{display:inline-block;will-change:opacity}
 .depth-text__layer,.depth-text__face{backface-visibility:visible}
-@media(max-width:600px){.home{height:230svh}}
+@media(max-width:600px){.home{height:280svh}}
 @media(prefers-reduced-motion:reduce){.home{height:170svh}.copy-word{will-change:auto}}
 
 /* GradientText fallback for reduced motion / unavailable canvas. */
@@ -82,3 +82,8 @@ html.lenis,html.lenis body{height:auto}
 .split-ready .gradient-text{background:none;filter:none}
 .split-ready .gradient-text .split-ink{background-image:var(--gt-gradient,linear-gradient(90deg,#3b82f6,#162e58,#ffffff));background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 .14em #3b82f666)}
 @media(prefers-reduced-motion:reduce){.split-char{will-change:auto}}
+
+/* Binary field belongs only to the pinned homepage, below copy and symbols. */
+.home-glitch{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden;will-change:opacity}
+.home-glitch-canvas{position:absolute;inset:0;display:block;width:100%;height:100%}
+@media(prefers-reduced-motion:reduce){.home-glitch{will-change:auto}}
