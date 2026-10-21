@@ -17,7 +17,27 @@ const shade=document.querySelector('.menu-shade');
 const icon=document.querySelector('.sm-icon');
 const text=document.querySelector('.sm-toggle-textInner');
 const reduced=matchMedia('(prefers-reduced-motion: reduce)');
-let open=false,animation,gsap;
+let open=false,animation,gsap,menuVisual,visualPreparing;
+// Prepare after the intro, and only render while the menu is open.
+function prepareMenuVisual(){
+  if(visualPreparing)return visualPreparing;
+  visualPreparing=import('./micro-slats.js').then(({createMicroSlats})=>{
+    menuVisual=createMicroSlats(panel.querySelector('.sm-menu-visual'));
+    menuVisual?.setActive(open);
+  }).catch(error=>{
+    console.warn('Menu background unavailable; retaining the dark fallback.',error);
+  });
+  return visualPreparing;
+}
+let visualQueued=false;
+function queueMenuVisual(){
+  if(visualQueued||document.body.classList.contains('intro-playing'))return;
+  visualQueued=true;
+  if('requestIdleCallback' in window)requestIdleCallback(prepareMenuVisual,{timeout:1800});
+  else setTimeout(prepareMenuVisual,400);
+}
+new MutationObserver(queueMenuVisual).observe(document.body,{attributes:true,attributeFilter:['class']});
+queueMenuVisual();
 function routePath(){return location.pathname.replace(/\/$/,'')||'/';}
 function renderRoute(focus=false){
   const path=routePath(),route=routes[path]||routes['/'];
@@ -48,6 +68,8 @@ function animateLabel(opening){
 function setOpen(next,{restoreFocus=true}={}){
   if(open===next)return;
   open=next;animation?.kill();
+  if(open)prepareMenuVisual();
+  menuVisual?.setActive(open);
   gsap.killTweensOf([toggle,icon,shade]);
   chrome.dataset.open=String(open);
   panel.inert=!open;panel.setAttribute('aria-hidden',String(!open));

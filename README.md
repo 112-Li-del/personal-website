@@ -17,3 +17,9 @@
 ## CursorGrid 背景
 
 已将用户提供的 React Bits CursorGrid WebGL2 源码适配为原生模块 `cursor-grid.js`。保留原着色器、鼠标范围高亮、400ms 停留/800ms 渐隐、点击扩散与中心入场波纹；默认格子 60px、半径 140px、背景线透明度 0.08、填充透明度 0.06。只作为加载页背景层，文字、计数、进度条、原有时序和正文均保持原设置。加载页开始或重播时重置网格，退场即停渲染，正文期间不响应指针。WebGL2 不可用时使用静态网格降级。原源码的反向 smoothstep 改为等价的正向公式，以避免 GLSL 未定义行为。
+
+## Menu MicroSlats background
+
+The user-provided React Bits MicroSlats shaders and fluid simulation are adapted in `micro-slats.js`, using the exact blue storm preset. The navigation panel supplies an independent dark scrim so highlights do not obscure links. OGL 1.0.11 is vendored under `assets/ogl/src` and loaded from this local server. Its official npm package declares Unlicense; provenance and checksum are recorded in `assets/ogl/NOTICE.txt`.
+
+The renderer is prepared during idle time, starts when the menu opens, and stops when the menu closes or the tab is hidden. Reduced motion produces a static frame. WebGL2 failure retains the dark decorative fallback. The homepage, intro timing, menu links, and scroll-lock fix are unchanged.

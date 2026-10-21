@@ -836,7 +836,7 @@ function createLetterGlitch(container, canvas) {
       const progress = clamp((scrollY-top)/Math.max(1,textTravel),0,1);
       const opacity = 1-smoother((progress-.04)/.85);
       container.style.opacity=String(opacity);
-      visible = intersects && opacity>.001 && !document.hidden && !document.body.classList.contains('intro-playing') && !document.body.classList.contains('menu-open');
+      visible = intersects && opacity>.001 && !document.hidden && !document.body.classList.contains('intro-playing');
       container.dataset.active=String(visible);
       if(!visible){cancelAnimationFrame(raf);raf=0;last=0;pointer.inside=false;}
     }

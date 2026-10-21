@@ -1,0 +1,11 @@
+OGL 1.0.11
+Author: oframe / OGL contributors
+Source: https://github.com/oframe/ogl
+Package: https://registry.npmjs.org/ogl/-/ogl-1.0.11.tgz
+License declared by the official npm package: Unlicense
+SHA-512: kUpC154AFfxi16pmZUK4jk3J+8zxwTWGPo03EoYA8QPbzikHoaC82n6pNTbd+oEaJonaE8aPWBlX7ad9zrqLsA==
+
+MicroSlats is adapted from the React Bits source provided by the user.
+The original shaders, preset values and fluid passes are retained.
+The integration replaces React lifecycle hooks with native JavaScript and
+runs the animation only while the navigation panel is open.

@@ -1,5 +1,7 @@
 [hidden]{display:none!important}
-body.menu-open{overflow:hidden}
+/* Lock the viewport, never body: body overflow breaks the sticky hero. */
+html{scrollbar-gutter:stable}
+html:has(body.menu-open){overflow:hidden}
 .site-chrome{position:fixed;inset:0;z-index:40;overflow:clip;pointer-events:none;--menu-width:min(560px,46vw)}
 body.intro-playing .site-chrome{visibility:hidden}
 .staggered-menu-header{position:absolute;inset:0 0 auto;z-index:5;display:flex;justify-content:space-between;align-items:center;padding:24px var(--spacing);pointer-events:none}
@@ -51,3 +53,13 @@ body.intro-playing .site-chrome{visibility:hidden}
 @media(max-width:600px){.site-chrome{--menu-width:100%}.staggered-menu-header{padding:20px 24px}.site-brand{font-size:12px}.sm-toggle{font-size:13px}.staggered-menu-panel{padding:112px 28px 32px}.sm-panel-item{font-size:clamp(30px,10vw,42px)}.sm-panel-list{gap:18px}.sm-panel-inner{gap:30px}.interior-page{padding:140px 24px 80px}.page-copy h1{font-size:clamp(48px,12vw,76px)}.page-description{font-size:13px}.contact-links{flex-direction:column;gap:22px;font-size:14px}.home-next{padding:60px 24px 80px}}
 @media(max-height:620px){.staggered-menu-panel{padding-top:90px}.sm-panel-inner{gap:16px}.sm-panel-list{gap:9px}.sm-panel-item{font-size:32px}.sm-socials{padding-top:20px}}
 @media(prefers-reduced-motion:reduce){.sm-panel-itemLabel{will-change:auto}.sm-panel-item{transition:none}}
+
+/* MicroSlats is decorative. A separate scrim bounds highlights behind the links. */
+.staggered-menu-panel{isolation:isolate;background:#090c12}
+.sm-menu-visual{position:absolute;inset:0;z-index:-2;overflow:hidden;pointer-events:none;opacity:.6;background:radial-gradient(ellipse at 80% 75%,#163363 0,transparent 70%)}
+.sm-menu-visual canvas{display:block;width:100%;height:100%}
+.sm-menu-scrim{position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(180deg,rgba(6,9,15,.72) 0%,rgba(6,9,15,.76) 66%,rgba(6,9,15,.38) 100%)}
+.sm-panel-inner{position:relative}
+.sm-panel-item,.sm-socials-link{text-shadow:0 2px 14px #0009}
+.sm-panel-caption,.sm-socials-title{color:#aab4c6}
+@media(prefers-reduced-motion:reduce){.sm-menu-visual{opacity:.4}}

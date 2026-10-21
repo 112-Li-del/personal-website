@@ -56,7 +56,7 @@ function resize(){
 function draw(now){
   raf=0;
   const dt=last?Math.min((now-last)/1000,.05):0;last=now;
-  const paused=document.hidden||document.body.classList.contains('intro-playing')||document.body.classList.contains('menu-open');
+  const paused=document.hidden||document.body.classList.contains('intro-playing');
   if(paused)return;
   if(!reduced.matches)elapsed+=dt;
   const p=clamp((scrollY-top)/travel);

@@ -684,7 +684,7 @@ function createTechText(container, canvas, text, accentLetters, sequenceStart, s
 
     const tick = now => {
       raf = 0;
-      if (document.hidden || document.body.classList.contains('intro-playing') || document.body.classList.contains('menu-open')) return;
+      if (document.hidden || document.body.classList.contains('intro-playing')) return;
       const s = settingsRef.current;
       if (!s) return;
       const dt = Math.min(0.05, Math.max(0.001, (now - last) / 1000));
