@@ -1,0 +1,51 @@
+/* Home continues into a normal-flow introduction, after the hero text has faded. */
+.profile-section{position:relative;z-index:3;isolation:isolate;margin-top:-100svh;padding:18svh var(--spacing) 120px;opacity:0;pointer-events:none;overflow:clip}
+.profile-section[data-visible="true"]{pointer-events:auto}
+.profile-light{position:absolute;z-index:-1;top:12svh;left:0;width:100%;height:min(1000px,100%);pointer-events:none;mask-image:linear-gradient(transparent,#000 12%,#000 75%,transparent)}
+.profile-heading{position:relative;text-align:center;max-width:1280px;margin:0 auto 28px}
+.profile-kicker{margin:0 0 25px;font:10px/1.4 Arial,sans-serif;letter-spacing:.17em;color:#8994a6}
+.profile-heading h2{margin:0;font-size:clamp(34px,4.6vw,70px);font-weight:400;letter-spacing:-.055em;line-height:1.12;text-wrap:balance}
+.profile-gradient{font-style:normal;background:linear-gradient(110deg,#e8efff 0%,#6098fa 25%,#294c88 47%,#84aeef 70%,#e8efff 100%);background-size:240% 100%;background-clip:text;-webkit-background-clip:text;color:transparent;animation:profile-ink 8s ease-in-out infinite alternate}
+@keyframes profile-ink{to{background-position:100% 50%}}
+.profile-layout{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,1.05fr) minmax(0,1fr);gap:clamp(18px,2.6vw,42px);align-items:start;max-width:1360px;margin:auto}
+.profile-column{display:grid;gap:24px;min-width:0;padding-top:132px}
+.profile-column--right{padding-top:180px}
+.profile-window{min-width:0;border:1px solid #2b3443;border-radius:2px;background:rgba(9,12,18,.91);text-align:left;opacity:0;transform:translateY(38px);transition:opacity .7s ease,transform .9s cubic-bezier(.2,.75,.2,1)}
+.profile-window.is-visible{opacity:1;transform:none}
+.profile-window-bar{height:38px;padding:0 15px;border-bottom:1px solid #29313d;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.profile-window-bar h3{margin:0;font:500 12px/1 Consolas,"Courier New",monospace;letter-spacing:-.025em;color:#d5deea}
+.profile-window-bar>span{font:14px/1 Arial,sans-serif;color:#657184;opacity:.7}
+.profile-lines{padding:18px 18px 20px 39px;margin:0;color:#b6bfcd;font-size:clamp(12px,1vw,14px);line-height:1.8}
+.profile-lines li{padding-left:4px;margin:0 0 12px}
+.profile-lines li:last-child{margin-bottom:0}
+.profile-lines li::marker{color:#5d6e86;font:11px Consolas,monospace}
+.profile-lines strong{color:#eff3fa;font-weight:500}
+.profile-accent{color:#80adf4}
+.profile-window--location{margin-left:22px}
+.profile-window--hobbies{margin-right:28px}
+.profile-contact{padding-top:18px;padding-bottom:20px}
+.profile-contact a{display:flex;flex-direction:column;gap:2px;width:fit-content;color:#d4dfef;overflow-wrap:anywhere;transition:color .2s}
+.profile-contact a:hover{color:#6b9fff}
+.contact-kind{font:9px/1.4 Consolas,monospace;letter-spacing:.12em;color:#647d9f}
+.profile-hobbies{padding-top:17px;padding-bottom:19px}
+.profile-hobbies li{margin-bottom:5px}
+.profile-badge{position:relative;margin:0;min-width:0;text-align:center;opacity:0;transition:opacity .3s ease}
+.profile-badge.is-visible{opacity:1}
+.lanyard-host{position:relative;width:100%;height:590px;overflow:hidden}
+.lanyard-canvas{display:block;width:100%;height:100%;position:relative;z-index:1}
+.badge-fallback{position:absolute;top:150px;left:50%;transform:translateX(-50%) rotate(-4deg);width:68%;max-width:260px;padding:16px;background:#122445;border:1px solid #466085;border-radius:12px;color:#d9e6fa;box-shadow:0 16px 40px #0006}
+.badge-fallback>span{display:block;margin-bottom:12px;font-size:15px;letter-spacing:.08em}
+.badge-fallback img{display:block;width:100%;height:auto;border-radius:4px}
+.badge-fallback strong{display:block;font:9px/1.4 Consolas,monospace;letter-spacing:.08em;margin-top:14px}
+.lanyard-host.has-webgl .badge-fallback{visibility:hidden}
+.profile-badge figcaption{margin-top:-8px;color:#5f7290;font:8px/1.4 Consolas,monospace;letter-spacing:.12em;white-space:nowrap}
+.profile-badge figcaption span{margin:0 6px;color:#8eaccf}
+.badge-flip{padding:8px 4px;margin-top:8px;min-height:32px;color:#879bb8;font:11px/1.2 Arial,sans-serif;transition:color .2s}
+.badge-flip:hover{color:#c3d8fa}
+@media(max-width:1050px){.profile-layout{gap:18px}.profile-column{padding-top:110px;gap:20px}.profile-column--right{padding-top:150px}.profile-window-bar{padding:0 11px}.profile-lines{padding:15px 13px 17px 29px}.profile-window--location{margin-left:0}.profile-window--hobbies{margin-right:0}.lanyard-host{height:530px}.profile-heading h2{font-size:clamp(34px,4.8vw,54px)}}
+@media(max-width:760px){.profile-section{padding:18svh 24px 90px}.profile-heading{margin-bottom:0}.profile-heading h2{font-size:clamp(31px,6.8vw,46px);letter-spacing:-.045em}.profile-kicker{font-size:9px;margin-bottom:22px}.profile-layout{display:flex;flex-direction:column;gap:24px;max-width:520px}.profile-badge{order:0;width:100%;max-width:380px;align-self:center;margin-bottom:24px}.lanyard-host{height:520px}.profile-column{order:1;width:100%;padding-top:0;gap:24px}.profile-column--right{order:2}.profile-lines{font-size:14px;line-height:1.85;padding:20px 20px 22px 40px}.profile-window-bar{padding:0 16px;height:40px}.profile-light{height:850px;top:12svh}.profile-badge figcaption{font-size:8px}.badge-fallback{top:140px;max-width:235px}}
+@media(prefers-reduced-motion:reduce){.profile-gradient{animation:none}.profile-window,.profile-badge{transition:none}.profile-window{transform:none}.profile-section{margin-top:0;padding-top:70px}}
+/* Leave room for the strap to bend and the badge to swing without a hard crop. */
+.profile-column{position:relative;z-index:2}
+.lanyard-host{width:calc(100% + 80px);margin-left:-40px}
+.profile-badge:not(.is-interactive) figcaption,.profile-badge:not(.is-interactive) .badge-flip{visibility:hidden}

@@ -1,0 +1,20 @@
+const assert=require('node:assert/strict');
+const fs=require('node:fs'),vm=require('node:vm');
+const scope=vm.createContext({});
+vm.runInContext(fs.readFileSync('brand-drum.js','utf8').replaceAll('export function','function'),scope);
+function run(code){return vm.runInContext(code,scope);}
+run('var one={angle:0,velocity:0,target:0};pushDrum(one,120);var peak=0;for(var i=0;i<400;i++){stepDrum(one,1/60);peak=Math.max(peak,Math.abs(one.angle));}');
+assert.ok(run('peak')>2 && run('peak')<20,'one wheel notch makes only a small excursion');
+assert.equal(run('one.angle'),0,'a small gesture returns to the same front-facing detent');
+run('var large={angle:0,velocity:0,target:0};pushDrum(large,680);for(var i=0;i<400;i++)stepDrum(large,1/60);');
+assert.equal(run('large.angle'),-90,'a large gesture advances exactly one face');
+assert.equal(run('large.velocity'),0,'the adjacent face comes to rest');
+run('pushDrum(large,120);for(var i=0;i<400;i++)stepDrum(large,1/60);');
+assert.equal(run('large.angle'),-90,'a later small gesture returns to the newly selected face');
+run('pushDrum(large,-680);for(var i=0;i<400;i++)stepDrum(large,1/60);');
+assert.equal(run('large.angle'),0,'a large reversed gesture selects the previous face');
+run('var burst={angle:0,velocity:0,target:0};for(var i=0;i<60;i++){pushDrum(burst,120);stepDrum(burst,1/60);}for(var i=0;i<500;i++)stepDrum(burst,1/60);');
+assert.ok(run('Math.abs(burst.angle)')>=90,'continuous scrolling advances faces');
+assert.equal(run('Math.abs(burst.angle % 90)'),0,'every resting pose is a full front-facing face');
+assert.equal(run('burst.velocity'),0,'continuous scrolling also settles completely');
+console.log('PASS: small return, large next face, new-face return, reverse face, continuous-scroll detents and final rest');

@@ -64,6 +64,9 @@ function draw(now){
   const textTravel=reduced.matches?travel:height*(width<=600?1.3:1.6);
   const textProgress=clamp((scrollY-top)/textTravel);
   home.dataset.progress=String(textProgress);
+  // Finish every outgoing glyph, including interactive canvas particles,
+  // before the following section can enter.
+  copy.style.visibility=textProgress>=.92?'hidden':'visible';
   const alpha=1-smooth((textProgress-.06)/.76);
   copy.style.opacity=reduced.matches?String(alpha):'1';
   document.querySelector('.eyebrow').style.opacity=String(1-smooth(textProgress/.32));

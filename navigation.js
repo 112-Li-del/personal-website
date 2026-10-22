@@ -1,3 +1,5 @@
+import { createPressureRow, initMenuPressure } from './menu-pressure.js';
+import './brand-drum.js';
 // Five real URL entries; navigation keeps the homepage's canvases mounted.
 const routes={
   '/':{page:'home',title:'Home'},'/about':{page:'about',title:'About'},
@@ -16,6 +18,7 @@ const socials=[...panel.querySelectorAll('.sm-socials-title,.sm-socials-link')];
 const shade=document.querySelector('.menu-shade');
 const icon=document.querySelector('.sm-icon');
 const text=document.querySelector('.sm-toggle-textInner');
+initMenuPressure(document.querySelector('.sm-toggle-textWrap'));
 const reduced=matchMedia('(prefers-reduced-motion: reduce)');
 let open=false,animation,gsap,menuVisual,visualPreparing;
 // Prepare after the intro, and only render while the menu is open.
@@ -61,7 +64,7 @@ renderRoute();
 function animateLabel(opening){
   const from=opening?'Menu':'Close',to=opening?'Close':'Menu';
   const sequence=[from,to,from,to,to];
-  text.replaceChildren(...sequence.map(label=>{const span=document.createElement('span');span.textContent=label;return span;}));
+  text.replaceChildren(...sequence.map(createPressureRow));
   gsap.killTweensOf(text);gsap.set(text,{yPercent:0});
   gsap.to(text,{yPercent:-80,duration:reduced.matches?0:.85,ease:'power4.out'});
 }

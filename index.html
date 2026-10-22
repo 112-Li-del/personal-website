@@ -8,11 +8,13 @@
   <title>李咏欣 · 个人作品集</title>
   <link rel="stylesheet" href="/style.css">
   <link rel="stylesheet" href="/navigation.css">
+  <link rel="stylesheet" href="/profile-section.css">
   <script type="module" src="/navigation.js"></script>
   <script type="module" src="/app.js"></script>
   <script type="module" src="/tech-text.js"></script>
   <script type="module" src="/floating-symbols.js"></script>
   <script type="module" src="/letter-glitch.js"></script>
+  <script type="module" src="/profile-section.js"></script>
 </head>
 <body>
   <a class="skip-link" href="#main-content">跳到正文</a>
@@ -20,7 +22,15 @@
     <div class="menu-shade" aria-hidden="true"></div>
     <div class="sm-prelayers" aria-hidden="true"><div class="sm-prelayer"></div><div class="sm-prelayer"></div></div>
     <header class="staggered-menu-header">
-      <a class="site-brand" href="/" data-route aria-label="李咏欣，回到首页">© Yongxin Li</a>
+      <a class="site-brand brand-drum" href="/" data-route aria-label="李咏欣，回到首页">
+        <span class="brand-drum__scene" aria-hidden="true"><span class="brand-drum__rotor">
+          <span class="brand-drum__face brand-drum__face--front"><span class="brand-name-layout"><strong>YONGXIN LI<span class="brand-copyright">©</span></strong><span class="brand-meta"><span>CREATIVE DEV</span><span>李咏欣 · 2026</span></span></span></span>
+          <span class="brand-drum__face brand-drum__face--right"><span class="brand-portrait-frame"><span class="brand-portrait-label">YONGXIN</span><img src="/assets/brand-avatar.png" width="1254" height="1254" alt="" decoding="async" draggable="false"><span class="brand-portrait-caption">AI · CODE · CREATE</span></span></span>
+          <span class="brand-drum__face brand-drum__face--back"><span class="brand-name-layout"><strong>YONGXIN LI<span class="brand-copyright">©</span></strong><span class="brand-meta"><span>CREATIVE DEV</span><span>李咏欣 · 2026</span></span></span></span>
+          <span class="brand-drum__face brand-drum__face--left"><span class="brand-portrait-frame"><span class="brand-portrait-label">YONGXIN</span><img src="/assets/brand-avatar.png" width="1254" height="1254" alt="" decoding="async" draggable="false"><span class="brand-portrait-caption">AI · CODE · CREATE</span></span></span>
+          <span class="brand-drum__cap brand-drum__cap--top"></span><span class="brand-drum__cap brand-drum__cap--bottom"></span>
+        </span></span>
+      </a>
       <button class="sm-toggle" type="button" aria-label="打开菜单" aria-expanded="false" aria-controls="staggered-menu-panel">
         <span class="sm-toggle-textWrap" aria-hidden="true"><span class="sm-toggle-textInner"><span>Menu</span><span>Close</span></span></span>
         <span class="sm-icon" aria-hidden="true"><span class="sm-icon-line"></span><span class="sm-icon-line sm-icon-line-v"></span></span>
@@ -53,9 +63,53 @@
         <h1 id="home-title" lang="en"><span class="hero-line"><span class="hero-line-label">Hi, I’m Yongxin, a</span></span><span class="hero-line"><span class="hero-line-label"><em class="gradient-text" data-text="creative">creative</em> developer</span></span></h1>
         <p class="hero-description" lang="en">I bring value to web development projects by merging technical expertise with creativity and aesthetics.</p>
       </div>
+
       </div>
     </section>
-    <section class="home-next"><span class="section-label">KEEP EXPLORING</span><a href="/work" data-route>See what I’m building <span aria-hidden="true">↗</span></a></section>
+    <section class="profile-section" id="meet-yongxin" aria-labelledby="profile-title">
+      <div class="profile-light" aria-hidden="true"></div>
+      <header class="profile-heading">
+        <p class="profile-kicker">01 / A LITTLE ABOUT ME</p>
+        <h2 id="profile-title">Your <em class="profile-gradient">full-stack</em> developer,<br>right by your side.</h2>
+      </header>
+      <div class="profile-layout">
+        <div class="profile-column profile-column--left">
+          <article class="profile-window" data-reveal>
+            <header class="profile-window-bar"><h3>about-me</h3><span aria-hidden="true">− &nbsp; □ &nbsp; ×</span></header>
+            <ol class="profile-lines">
+              <li>Hi, I'm <strong>Yongxin Li.</strong> I build thoughtful experiences, from the interface to the systems behind it.</li>
+              <li>My focus is <span class="profile-accent">full-stack development</span>, with a special interest in <span class="profile-accent">AI applications, RAG and agents.</span></li>
+              <li>I like turning an idea into a product that people can actually use.</li>
+            </ol>
+          </article>
+          <article class="profile-window profile-window--location" data-reveal>
+            <header class="profile-window-bar"><h3>based-in</h3><span aria-hidden="true">− &nbsp; □ &nbsp; ×</span></header>
+            <ol class="profile-lines"><li>Currently based in <span class="profile-accent">China.</span></li><li>Studying Computer Science at Nanjing University of Finance &amp; Economics.</li></ol>
+          </article>
+        </div>
+        <figure class="profile-badge" aria-label="李咏欣的互动工牌">
+          <div class="lanyard-host" role="img" aria-label="黑白动漫头像工牌，可拖动，点击可翻面">
+            <div class="badge-fallback"><span>YONGXIN LI</span><img src="/assets/lanyard-avatar.png" alt="李咏欣的黑白动漫头像" width="1254" height="1254"><strong>FULL STACK DEVELOPER</strong></div>
+          </div>
+          <figcaption>DRAG TO PLAY <span aria-hidden="true">↔</span> CLICK TO FLIP</figcaption>
+          <button class="badge-flip" type="button">Flip the card <span aria-hidden="true">↻</span></button>
+        </figure>
+        <div class="profile-column profile-column--right">
+          <article class="profile-window" data-reveal>
+            <header class="profile-window-bar"><h3>get-in-touch</h3><span aria-hidden="true">− &nbsp; □ &nbsp; ×</span></header>
+            <ol class="profile-lines profile-contact">
+              <li><a href="tel:+8615850567265"><span class="contact-kind">PHONE</span><span>+86 158 5056 7265 ↗</span></a></li>
+              <li><a href="mailto:2386079596@qq.com"><span class="contact-kind">EMAIL</span><span>2386079596@qq.com ↗</span></a></li>
+              <li><a href="https://github.com/112-Li-del" target="_blank" rel="noopener noreferrer"><span class="contact-kind">GITHUB</span><span>112-Li-del ↗</span></a></li>
+            </ol>
+          </article>
+          <article class="profile-window profile-window--hobbies" data-reveal>
+            <header class="profile-window-bar"><h3>off-the-keyboard</h3><span aria-hidden="true">− &nbsp; □ &nbsp; ×</span></header>
+            <ol class="profile-lines profile-hobbies"><li>Reading</li><li>CS:GO</li><li>Fitness</li><li>Sports</li><li>Basketball</li></ol>
+          </article>
+        </div>
+      </div>
+    </section>
     </div>
     <section class="route-page interior-page" data-page="about" hidden aria-labelledby="about-title">
       <div class="page-copy"><p class="page-kicker">01 / ABOUT</p><h1 id="about-title" tabindex="-1">A little<br><em>about me.</em></h1><p class="page-description">我是李咏欣，南京财经大学计算机科学与技术本科在读。<br>专注大模型应用、RAG 与 Agent 工具链，把想法做成可以使用的产品。</p><a href="/work" data-route class="page-link">Explore my work <span aria-hidden="true">↗</span></a></div>

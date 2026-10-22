@@ -23,3 +23,20 @@
 The user-provided React Bits MicroSlats shaders and fluid simulation are adapted in `micro-slats.js`, using the exact blue storm preset. The navigation panel supplies an independent dark scrim so highlights do not obscure links. OGL 1.0.11 is vendored under `assets/ogl/src` and loaded from this local server. Its official npm package declares Unlicense; provenance and checksum are recorded in `assets/ogl/NOTICE.txt`.
 
 The renderer is prepared during idle time, starts when the menu opens, and stops when the menu closes or the tab is hidden. Reduced motion produces a static frame. WebGL2 failure retains the dark decorative fallback. The homepage, intro timing, menu links, and scroll-lock fix are unchanged.
+
+## Header pressure and homepage handoff
+
+The identity badge uses larger Arial typography. Its scroll detents and spring behavior are unchanged. `menu-pressure.js` adapts the user-provided React Bits TextPressure wave, cursor smoothing and click ripple to Menu/Close rows. GSAP still animates the original five-row label sequence and layered panel. Roboto Flex is subset locally to the required letters with weight, width and slant axes preserved; the OFL license is in `assets/fonts/OFL-RobotoFlex.txt`.
+
+The homepage handoff now waits until every outgoing hero letter is gone before introducing the profile title. The profile section scrolls in normal flow while the final decorative glyphs continue their exit. Hidden content stays inert; desktop and 375px mobile layouts have been checked.
+
+
+## Profile section and identity badge
+
+The home hero now hands off to a normal-flow profile section. Its title remains invisible until hero progress .94 (the final hero letter finishes at .895); `floating-symbols.js` also hides the outgoing canvas at .92 to prevent pointer particles from overlapping the next title. `profile-section.js` coordinates the section fade, delayed physical badge drop, and window reveals. Profile layout and responsive styles are in `profile-section.css`.
+
+`lanyard.js` ports the supplied React Bits Lanyard physics/geometry into vanilla JavaScript with locally pinned Three.js 0.180.0 (`assets/three/LICENSE`). The badge texture is composed on canvas around the unmodified user portrait in `assets/lanyard-avatar.png`. Drag and release to swing it; click it or use the keyboard-accessible Flip button to see the back. Resize resets the physical pose safely. Reduced motion uses a static badge and instantaneous flips.
+
+`light-rays.js` ports the supplied LightRays WebGL2 shader with the requested navy color `#122445`. Both effects pause when offscreen, when the document is hidden, or when the menu is open. WebGL failure leaves a readable portrait badge fallback. Phone, email, and GitHub are taken from the user-provided résumé; hobbies and China location follow the user's request.
+
+Menu TextPressure uses a compact upright 20px word (19px on mobile), retaining the existing menu GSAP transition. Width/weight variations stay within its invisible fixed slot.
