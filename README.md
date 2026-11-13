@@ -1,6 +1,6 @@
 # 个人作品集 · 多语言问候开场
 
-运行 `node server.cjs`，打开 http://127.0.0.1:4187 。当前为本地预览，未部署。
+运行 `node server.cjs`，打开 http://127.0.0.1:4187 做本地预览。公网站点另行部署，本地改动需要重新发布后才会生效。
 
 按用户要求，已停用人物推拉效果。现为参考 Dennis Snellenberg（https://dennissnellenberg.com/）的深色全屏、居中白色问候语、左侧圆点与弧形底边向上退场。
 
@@ -40,3 +40,16 @@ The home hero now hands off to a normal-flow profile section. Its title remains 
 `light-rays.js` ports the supplied LightRays WebGL2 shader with the requested navy color `#122445`. Both effects pause when offscreen, when the document is hidden, or when the menu is open. WebGL failure leaves a readable portrait badge fallback. Phone, email, and GitHub are taken from the user-provided résumé; hobbies and China location follow the user's request.
 
 Menu TextPressure uses a compact upright 20px word (19px on mobile), retaining the existing menu GSAP transition. Width/weight variations stay within its invisible fixed slot.
+
+## 星海列车（关于我段落）
+
+参考 Tianxiu Zhou 的 WebGL2 作品「Up in the Cloud Sea」改造成星海列车，保留原作的 11 层 fbm 云带、矢量火车/桥/车轮/烟、前景运动模糊和暗角校正；把暖色日落按亮度映射到本站的深蓝—钢蓝—霜白色阶，加入会闪烁的星光、银河带与车窗灯光，符合站点主题色。
+
+- `star-sea.js`：GLSL + 原生 WebGL2 runner。`uReveal` 由滚动进度驱动，远层云先浮现、近层云次之、火车与桥再次、前景云最后；约 30fps、渲染分辨率约为显示尺寸的 0.62 倍、离屏/菜单打开时暂停、支持 `prefers-reduced-motion` 静态帧与 WebGL 失败时的 CSS 星空降级。
+- `assets/star-sea/blue-noise.bin`：1024×1024 R8 蓝噪声（原 PNG 的红通道，1 MB）。用原始字节上传而不是让浏览器解码 PNG，既省下 4.2 MB→1 MB，也避免解码失败导致云海退化成平滑带子。
+- `assets/star-sea/NOTICE.txt`：shader 与纹理的完整出处（原作者、ShaderToy 上游、GitHub blob）。
+- `index.html` / `profile-section.css`：四张窗口卡片文案改为中文、缩小并改成云朵轮廓（不规则圆角 + 两朵云耳 + 磨砂玻璃），从上方带旋转落下的错峰入场与轻微漂浮；工牌同步缩小并从上方落下。标题与 kicker 保留英文作为视觉锚点。
+- `profile-section.js`：新增本段滚动进度计算传给 `setReveal()`，并按可见性控制 `setActive()`；原先的 `light-rays.js` 初始化已停用（文件保留，`.profile-light` 改作纯 CSS 冷光晕），需要恢复时把 import 加回即可。
+- `server.cjs`：白名单加入 `star-sea.js`、`blue-noise.bin`、`NOTICE.txt`，并补 `.bin` 的 MIME 类型。
+
+已用无头 Edge（SwiftShader WebGL2）实际渲染验证：纹理上传成功、无控制台/WebGL 错误，中间滚动态只有天空与部分云带、火车未出现，滚到底全部浮现，桌面 1440×900 下中文卡片可读。

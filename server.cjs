@@ -2,9 +2,9 @@ const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
 const root = __dirname;
-const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs':'text/javascript; charset=utf-8', '.woff2': 'font/woff2', '.png': 'image/png', '.riv':'application/octet-stream', '.wasm':'application/wasm', '.txt':'text/plain; charset=utf-8' };
+const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs':'text/javascript; charset=utf-8', '.woff2': 'font/woff2', '.png': 'image/png', '.riv':'application/octet-stream', '.wasm':'application/wasm', '.txt':'text/plain; charset=utf-8', '.bin':'application/octet-stream' };
 const files = new Set(['index.html','profile-section.css','profile-section.js','light-rays.js','lanyard.js','assets/lanyard-avatar.png','assets/three/three.module.min.js','assets/three/three.core.min.js','navigation.js','brand-drum.js','menu-pressure.js','assets/fonts/roboto-flex-menu.woff2','navigation.css','micro-slats.js','style.css','app.js','cursor-grid.js','tech-text.js','split-text.js','assets/gsap/gsap.min.js','assets/gsap/SplitText.min.js','assets/gsap/LICENSE.txt','floating-symbols.js','letter-glitch.js','assets/lenis/lenis.mjs','assets/lenis/LICENSE.txt','character.js','assets/character-parts.png','assets/profile-head.png','assets/brand-avatar.png',
-  'assets/rive/skins-demo.riv','assets/rive/rive.js','assets/rive/rive.wasm','assets/rive/RUNTIME-LICENSE.txt']);
+  'assets/rive/skins-demo.riv','assets/rive/rive.js','assets/rive/rive.wasm','assets/rive/RUNTIME-LICENSE.txt','star-sea.js','assets/star-sea/blue-noise.bin','assets/star-sea/NOTICE.txt']);
 http.createServer((req,res) => {
   const requested = new URL(req.url,'http://localhost').pathname;
   const route=requested.replace(/\/$/,'')||'/';

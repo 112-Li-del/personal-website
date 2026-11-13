@@ -1,14 +1,17 @@
 // The hero owns its exit; the profile is normal document flow, not a second fixed title.
+// Scrolling through this section drives the Star Sea Express: sky, depth bands,
+// the train and the foreground clouds surface layer by layer.
 const section=document.querySelector('.profile-section');
 const home=document.querySelector('.home');
 const stage=document.querySelector('.home-stage');
 const badge=document.querySelector('.profile-badge');
 const host=document.querySelector('.lanyard-host');
 const flipButton=document.querySelector('.badge-flip');
-const windows=[...section.querySelectorAll('[data-reveal]')];
+const cards=[...section.querySelectorAll('[data-reveal]')];
 const reduced=matchMedia('(prefers-reduced-motion: reduce)');
 const smooth=v=>{const t=Math.max(0,Math.min(1,v));return t*t*(3-2*t);};
-let raf=0,loading=null,lanyard=null,rays=null,revealed=false,revealedAt=0,revealTimer=0;
+const clamp01=v=>Math.max(0,Math.min(1,v));
+let raf=0,loading=null,lanyard=null,starSea=null,revealed=false,revealedAt=0,revealTimer=0;
 flipButton.disabled=true;
 function prepare(){
   if(loading)return loading;
@@ -18,9 +21,9 @@ function prepare(){
       flipButton.disabled=!lanyard;
       badge.classList.toggle('is-interactive',!!lanyard);
     }).catch(error=>console.warn('Interactive badge unavailable; showing portrait.',error)),
-    import('./light-rays.js').then(({initLightRays})=>{
-      rays=initLightRays(section.querySelector('.profile-light'),{raysOrigin:'top-center',raysColor:'#122445',raysSpeed:1,lightSpread:.5,rayLength:3,glow:.6,haze:.25,followMouse:true,mouseInfluence:.1,maxDevicePixelRatio:1.5});
-    }).catch(error=>console.warn('Light rays unavailable.',error))
+    import('./star-sea.js').then(({initStarSea})=>{
+      starSea=initStarSea(section.querySelector('.star-sea'));
+    }).catch(error=>console.warn('Star Sea unavailable; using CSS sky.',error))
   ]).then(wake);
   return loading;
 }
@@ -43,6 +46,12 @@ function update(){
   const rect=section.getBoundingClientRect();
   const badgeRect=host.getBoundingClientRect();
   if(isHome&&!intro&&rect.top<innerHeight+450&&rect.bottom>0)prepare();
+  // Own scroll progress for the shader: 0 while the section is still below the
+  // fold, 1 by the time the visitor has moved through most of it.
+  const seaTravel=Math.max(1,rect.height*.75+innerHeight*.35);
+  const seaProgress=clamp01((innerHeight*.85-rect.top)/seaTravel);
+  starSea?.setReveal(reduced.matches?1:seaProgress);
+  starSea?.setActive(allowed&&!blocked&&rect.top<innerHeight&&rect.bottom>0);
   const badgeInView=badgeRect.top<innerHeight&&badgeRect.bottom>0;
   if(allowed&&badgeRect.top<innerHeight*.7&&badgeRect.bottom>0&&!revealed&&loading){
     loading.then(()=>{
@@ -51,12 +60,11 @@ function update(){
       lanyard?.reveal();clearTimeout(revealTimer);revealTimer=setTimeout(wake,reduced.matches?0:450);wake();
     });
   }
-  if(progress<.7&&revealed){revealed=false;badge.classList.remove('is-visible');windows.forEach(w=>w.classList.remove('is-visible'));}
+  if(progress<.7&&revealed){revealed=false;badge.classList.remove('is-visible');cards.forEach(card=>card.classList.remove('is-visible'));}
   if(revealed&&(reduced.matches||performance.now()-revealedAt>400)){
-    windows.forEach(window=>{const box=window.getBoundingClientRect();if(box.top<innerHeight*.94)window.classList.add('is-visible');});
+    cards.forEach(card=>{const box=card.getBoundingClientRect();if(box.top<innerHeight*.94)card.classList.add('is-visible');});
   }
   lanyard?.setActive(allowed&&revealed&&badgeInView&&!blocked);
-  rays?.setActive(allowed&&rect.top<innerHeight&&rect.bottom>0&&!blocked);
 }
 function wake(){if(!raf)raf=requestAnimationFrame(update);}
 flipButton.addEventListener('click',()=>lanyard?.flip());

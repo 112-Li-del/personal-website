@@ -1,0 +1,35 @@
+Star Sea Express — third-party provenance
+=========================================
+
+1. Fragment shader (star-sea.js, FRAGMENT_SHADER)
+   Original work: "Up in the Cloud Sea" / "Traveling in the Cloud" (2024)
+   by Tianxiu (Tyson) Zhou, Texas A&M University, CSCE 646 Project 1.
+     http://people.tamu.edu/~choutianxius/csce646/pr01/index.html
+     https://github.com/choutianxius/csce646-digital-image
+     shader source: .../pr01/main-image-source.txt
+   It is itself adapted from mdb's ShaderToy "Traveling in the Cloud":
+     https://www.shadertoy.com/view/Ndc3zl
+
+   Retained from the original: the layered fbm cloud bands, the
+   vector-to-raster train / bridge / wheels / smoke geometry, the
+   foreground motion-blur pass, the vignette correction and the
+   time-driven drift.
+   Added for this site: a luminance-based navy/steel-blue regrade
+   (nightGrade), a twinkling starfield and milky band (skyColor /
+   starLayer), a uReveal uniform for scroll-driven depth reveals,
+   window lights on the train, and GLSL safety fixes (pow() on
+   possibly-negative bases replaced with explicit squares).
+   ShaderToy code is publicly posted for reuse; this adaptation is used
+   in a non-commercial personal portfolio. Credit is kept here and in
+   the source file header.
+
+2. Blue-noise texture (blue-noise.bin)
+   1024x1024 R8, 1,048,576 bytes. Extracted from the red channel of the
+   original blue_noise.png (1024x1024 RGBA, 4,202,841 bytes) in the
+   GitHub repo: public/pr01/blue_noise.png, blob fbe0757e. The shader
+   samples .x to build the fbm clouds, exactly as the original does.
+   Shipping raw R8 bytes instead of the PNG cuts the payload from
+   4.2 MB to 1 MB and avoids browser image-decode failures.
+
+3. Nothing here is served from a third-party CDN at runtime; both the
+   shader and the texture are local files.
