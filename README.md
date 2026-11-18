@@ -1,6 +1,6 @@
 # 个人作品集 · 多语言问候开场
 
-运行 `node server.cjs`，打开 http://127.0.0.1:4187 。当前为本地预览，未部署。
+运行 `node server.cjs`，打开 http://127.0.0.1:4187 做本地预览。公网站点另行部署，本地改动需要重新发布后才会生效。
 
 按用户要求，已停用人物推拉效果。现为参考 Dennis Snellenberg（https://dennissnellenberg.com/）的深色全屏、居中白色问候语、左侧圆点与弧形底边向上退场。
 
@@ -40,3 +40,15 @@ The home hero now hands off to a normal-flow profile section. Its title remains 
 `light-rays.js` ports the supplied LightRays WebGL2 shader with the requested navy color `#122445`. Both effects pause when offscreen, when the document is hidden, or when the menu is open. WebGL failure leaves a readable portrait badge fallback. Phone, email, and GitHub are taken from the user-provided résumé; hobbies and China location follow the user's request.
 
 Menu TextPressure uses a compact upright 20px word (19px on mobile), retaining the existing menu GSAP transition. Width/weight variations stay within its invisible fixed slot.
+
+## 星海列车（关于我段落）
+
+首页资料区使用全屏星海列车，保留分层云海、桥梁、列车、蒸汽和闪烁星光。随滚动逐步揭幕，名牌落下后四张中文资料卡浮现，往回滚动会收起。
+
+- 当前入口为 profile-section.js，加载 assets/star-train/cloud-sea.glsl 和原版蓝噪声纹理。渲染分辨率按 GPU 完成情况动态调整。
+- light-rays.js 提供原来的动态光束，lanyard.js 提供原来的 3D 工牌、吊带物理、拖动摆动和翻面。进入资料区后分阶段初始化，离屏、切换页面、打开菜单或隐藏标签页时暂停。
+- profile-section.css 控制全屏场景、小名牌和四张可展开的中文云朵资料卡。
+- 本地服务器兼容 .glsl 和 .bin 素材。远程旧版 star-sea.js、assets/star-sea 和预览图作为历史实现保留，来源见 assets/star-sea/NOTICE.txt。
+- 当前渲染器素材的许可证见 assets/star-train/LICENSE，原作来自 mdb 的 Up in the Cloud Sea，经 Tianxiu Zhou 改编。
+
+运行 node server.cjs 后在浏览器预览。发布到公网站点后才能在远程看到本地修改。
