@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>星海列车 · 李咏欣</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#090d16;color:#eef4ff;font-family:Arial,"Microsoft YaHei",sans-serif}button,a{color:inherit}button{font:inherit;cursor:pointer}
+.journey{position:relative;--scene-height:min(64svh,520px);width:min(1080px,calc(100% - 48px));height:calc(var(--scene-height) + 60svh);margin:clamp(24px,7svh,66px) auto 0}
+.stage{position:sticky;z-index:0;top:24px;height:var(--scene-height);display:grid;place-items:center;overflow:hidden;border:1px solid #253650;border-radius:22px;background:radial-gradient(ellipse at 50% 66%,#182945,#090d16 70%)}
+canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cover{position:relative;text-align:center;padding:28px;text-shadow:0 2px 16px #090d16}
+h1{font-size:clamp(42px,7vw,78px);letter-spacing:-.08em;margin:0 0 18px;font-weight:600}
+.control{border:1px solid #627a9b;border-radius:999px;background:#111e32;padding:10px 18px}
+#mode{position:absolute;z-index:2;top:20px;right:18px}
+#hint{position:absolute;bottom:23px;margin:0;padding:7px 13px;border-radius:20px;background:#090d16c9;font-size:13px;color:#c9d8ef}
+[hidden]{display:none!important}
+.profile{position:absolute;inset:0;z-index:1;pointer-events:none;isolation:isolate}
+.badge{position:absolute;top:41%;left:24.5%;width:clamp(52px,6.5vw,76px);margin:0;padding:5px;translate:-50% -50%;transform-origin:50% -65px;border:1px solid #6f86af;border-radius:8px;background:linear-gradient(150deg,#385583,#111c31);box-shadow:0 7px 16px #090d1680;color:#edf4ff;text-align:center;clip-path:inset(-110px -22px -25px);transition:opacity .36s,transform .76s cubic-bezier(.22,1.18,.42,1),clip-path .7s}
+.badge::before,.badge::after{content:"";position:absolute;pointer-events:none}
+.badge::before{height:clamp(45px,10svh,110px);width:7px;bottom:100%;left:calc(50% - 3.5px);background:linear-gradient(0deg,#5178ac 0 50%,#a5bdd973 76%,transparent);border-radius:3px}
+.badge::after{width:150%;height:45px;top:-49px;left:-25%;background:radial-gradient(ellipse,#a9beee67,transparent 70%)}
+.badge img{display:block;width:100%;height:auto;border-radius:4px}
+.badge figcaption{margin:5px 0 1px;font-size:clamp(9px,1vw,11px);white-space:nowrap}
+.pending .badge{opacity:0;transform:translateY(-85px) rotate(-9deg);clip-path:inset(95% -22px -25px)}
+.cloud:nth-of-type(1){--x:43%;--y:19%;--delay:0ms}
+.cloud:nth-of-type(2){--x:70%;--y:18%;--delay:100ms}
+.cloud:nth-of-type(3){--x:52%;--y:41%;--delay:190ms}
+.cloud:nth-of-type(4){--x:83%;--y:41%;--delay:290ms}
+.cloud summary{position:absolute;left:var(--x);top:var(--y);display:grid;place-items:center;min-height:44px;min-width:clamp(62px,9vw,108px);padding:5px 9px;translate:-50% -50%;pointer-events:auto;cursor:pointer;list-style:none;border-radius:44% 56% 50% 45%;background:radial-gradient(ellipse at 50% 52%,#192941f5 9%,#30446cce 53%,#b3c9ee66 75%,transparent 100%);text-shadow:0 1px 3px #10192a;color:#fff;font-size:clamp(11px,1.2vw,13px);white-space:nowrap;transition:opacity .46s var(--delay),transform .58s var(--delay),background .2s}
+.cloud summary::-webkit-details-marker{display:none}
+.cloud summary:hover,.cloud[open] summary{background:radial-gradient(ellipse,#203c65 25%,#607fbdbb 64%,transparent 100%)}
+.cloud summary:focus-visible,.cloud p a:focus-visible{outline:2px solid #e0edff;outline-offset:2px}
+.pending .cloud summary,.badge-only .cloud summary{opacity:0;transform:translateY(7px) scale(.86)}
+.cloud p{position:absolute;z-index:1;left:50%;top:51%;width:min(330px,calc(100% - 24px));translate:-50% 0;margin:0;padding:12px 15px;pointer-events:auto;border:1px solid #778cae;border-radius:14px;background:#101b30f5;color:#edf4ff;font-size:13px;line-height:1.65;overflow-wrap:anywhere}
+.cloud a{text-underline-offset:3px}
+footer{text-align:center;padding:16px;color:#9bacc7;font-size:12px}
+@media(max-width:720px){.journey{--scene-height:min(56svh,420px);width:calc(100% - 24px)}.stage{top:12px;border-radius:15px}.cloud:nth-of-type(1){--x:37%;--y:22%}.cloud:nth-of-type(2){--x:67%;--y:22%}.cloud:nth-of-type(3){--x:51%;--y:43%}.cloud:nth-of-type(4){--x:81%;--y:43%}.badge{left:17%;top:46%}.cloud p{top:55%}}
+@media(prefers-reduced-motion:reduce){.badge,.cloud summary{transition:none}}
+</style>
+<script src="./scene.js" defer></script>
+</head>
+<body>
+<main>
+<section class="journey" aria-label="星海列车">
+  <div class="stage">
+    <canvas aria-hidden="true" hidden></canvas>
+    <div class="cover"><h1>星海列车</h1><button class="control" id="start" type="button">启动实时预览</button></div>
+    <button class="control" id="mode" type="button" hidden>原版配色</button>
+    <p id="hint" role="status">启动后向下滚动，逐层揭开云海与列车</p>
+    <section class="profile pending" aria-label="关于李咏欣" inert hidden>
+      <figure class="badge">
+        <img src="./portrait.png" alt="李咏欣的黑白动漫头像" width="1254" height="1254" loading="lazy">
+        <figcaption>李咏欣</figcaption>
+      </figure>
+      <details class="cloud" name="profile-card"><summary>自我介绍</summary><p>我是李咏欣，专注全栈开发、AI 应用、RAG 和智能体。我喜欢把想法做成真正能用的产品。</p></details>
+      <details class="cloud" name="profile-card"><summary>所在地与教育</summary><p>现居中国，就读于南京财经大学计算机科学与技术专业。</p></details>
+      <details class="cloud" name="profile-card"><summary>联系我</summary><p>电话 <a href="tel:+8615850567265">+86 158 5056 7265</a><br>邮箱 <a href="mailto:2386079596@qq.com">2386079596@qq.com</a><br>GitHub <a href="https://github.com/112-Li-del">112-Li-del</a></p></details>
+      <details class="cloud" name="profile-card"><summary>业余爱好</summary><p>阅读、CS:GO、健身、体育运动和篮球。</p></details>
+    </section>
+  </div>
+</section>
+</main>
+<footer>场景源自 <a href="https://people.it.tamu.edu/~choutianxius/csce646/pr01/index.html">Tianxiu Zhou 的 Up in the Cloud Sea</a>，改编自 <a href="https://www.shadertoy.com/view/Ndc3zl">mdb 的 ShaderToy 作品</a></footer>
+</body>
+</html>
